@@ -1,7 +1,7 @@
 {
   "tool": "powerbi-pbip-forensics",
   "version": "1.0.0",
-  "generated_at": "2026-11-09T02:39:50+00:00",
+  "generated_at": "2026-11-09T13:47:18+00:00",
   "project": "synthetic_project",
   "scope": {
     "project": "synthetic_project",
@@ -53,6 +53,7 @@
               "Account Name",
               "Balance"
             ],
+            "hidden_columns": [],
             "calculated_columns": [],
             "measures": [
               "Total Balance"
@@ -77,6 +78,7 @@
               "Code",
               "Rate"
             ],
+            "hidden_columns": [],
             "calculated_columns": [],
             "measures": [],
             "hierarchies": [],
@@ -96,6 +98,7 @@
               "Customer Name",
               "Segment"
             ],
+            "hidden_columns": [],
             "calculated_columns": [],
             "measures": [],
             "hierarchies": [],
@@ -120,6 +123,7 @@
               "Year",
               "Month"
             ],
+            "hidden_columns": [],
             "calculated_columns": [
               "Year",
               "Month"
@@ -144,6 +148,7 @@
               "Product Name",
               "Category"
             ],
+            "hidden_columns": [],
             "calculated_columns": [],
             "measures": [],
             "hierarchies": [
@@ -165,6 +170,7 @@
               "TargetDate",
               "Target"
             ],
+            "hidden_columns": [],
             "calculated_columns": [],
             "measures": [
               "Target Amount"
@@ -193,6 +199,9 @@
               "Discount",
               "Line Total"
             ],
+            "hidden_columns": [
+              "SalesKey"
+            ],
             "calculated_columns": [
               "Line Total"
             ],
@@ -218,6 +227,7 @@
             "is_calculated": false,
             "is_calculation_group": false,
             "columns": [],
+            "hidden_columns": [],
             "calculated_columns": [],
             "measures": [
               "Revenue LY",
@@ -248,6 +258,16 @@
             "name": "Total Balance",
             "path": "ContosoRetail.SemanticModel/definition/tables/Account.tmdl",
             "line": 3,
+            "format_string": null,
+            "complexity": {
+              "tokens": 5,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 4
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [],
@@ -261,6 +281,16 @@
             "name": "Target Amount",
             "path": "ContosoRetail.SemanticModel/definition/tables/Sales Target.tmdl",
             "line": 3,
+            "format_string": null,
+            "complexity": {
+              "tokens": 5,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 4
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [],
@@ -274,6 +304,16 @@
             "name": "Total Revenue",
             "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
             "line": 5,
+            "format_string": "#,0.00",
+            "complexity": {
+              "tokens": 5,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 4
+            },
             "display_folder": "Core",
             "is_hidden": false,
             "measure_dependencies": [],
@@ -287,6 +327,16 @@
             "name": "Total Quantity",
             "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
             "line": 9,
+            "format_string": "#,0",
+            "complexity": {
+              "tokens": 5,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 4
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [],
@@ -300,6 +350,16 @@
             "name": "Sales Per Row",
             "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
             "line": 12,
+            "format_string": null,
+            "complexity": {
+              "tokens": 6,
+              "calls": 1,
+              "iterators": 1,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 7
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -313,6 +373,16 @@
             "name": "Revenue LY",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 3,
+            "format_string": null,
+            "complexity": {
+              "tokens": 10,
+              "calls": 2,
+              "iterators": 0,
+              "calculates": 1,
+              "max_nesting": 2,
+              "lines": 1,
+              "score": 11
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -328,6 +398,16 @@
             "name": "Revenue All Customers",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 5,
+            "format_string": null,
+            "complexity": {
+              "tokens": 9,
+              "calls": 2,
+              "iterators": 0,
+              "calculates": 1,
+              "max_nesting": 2,
+              "lines": 1,
+              "score": 11
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -341,6 +421,16 @@
             "name": "Revenue % of All Customers",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 7,
+            "format_string": "0.0%",
+            "complexity": {
+              "tokens": 6,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 6
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -355,6 +445,16 @@
             "name": "High Value Revenue",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 11,
+            "format_string": null,
+            "complexity": {
+              "tokens": 17,
+              "calls": 2,
+              "iterators": 1,
+              "calculates": 1,
+              "max_nesting": 2,
+              "lines": 5,
+              "score": 14
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -371,6 +471,16 @@
             "name": "Avg Customer Spend",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 18,
+            "format_string": null,
+            "complexity": {
+              "tokens": 18,
+              "calls": 3,
+              "iterators": 2,
+              "calculates": 0,
+              "max_nesting": 3,
+              "lines": 1,
+              "score": 16
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [],
@@ -385,6 +495,16 @@
             "name": "Margin %",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 20,
+            "format_string": null,
+            "complexity": {
+              "tokens": 7,
+              "calls": 0,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 0,
+              "lines": 1,
+              "score": 1
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -398,6 +518,16 @@
             "name": "Revenue by Ship Date",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 22,
+            "format_string": null,
+            "complexity": {
+              "tokens": 13,
+              "calls": 2,
+              "iterators": 0,
+              "calculates": 1,
+              "max_nesting": 2,
+              "lines": 1,
+              "score": 11
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -414,6 +544,16 @@
             "name": "Broken UseRel",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 24,
+            "format_string": null,
+            "complexity": {
+              "tokens": 13,
+              "calls": 2,
+              "iterators": 0,
+              "calculates": 1,
+              "max_nesting": 2,
+              "lines": 1,
+              "score": 11
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -430,6 +570,16 @@
             "name": "Bonus",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 26,
+            "format_string": null,
+            "complexity": {
+              "tokens": 12,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 5
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -443,6 +593,16 @@
             "name": "Active Customers",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 28,
+            "format_string": null,
+            "complexity": {
+              "tokens": 5,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 4
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [],
@@ -456,6 +616,16 @@
             "name": "Segment Revenue",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 30,
+            "format_string": null,
+            "complexity": {
+              "tokens": 27,
+              "calls": 4,
+              "iterators": 0,
+              "calculates": 1,
+              "max_nesting": 2,
+              "lines": 3,
+              "score": 13
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -473,6 +643,16 @@
             "name": "Revenue (R$) – Net",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 35,
+            "format_string": null,
+            "complexity": {
+              "tokens": 11,
+              "calls": 1,
+              "iterators": 1,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 7
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -488,6 +668,16 @@
             "name": "Customer's Rank",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 37,
+            "format_string": null,
+            "complexity": {
+              "tokens": 9,
+              "calls": 2,
+              "iterators": 1,
+              "calculates": 0,
+              "max_nesting": 2,
+              "lines": 1,
+              "score": 11
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -501,6 +691,16 @@
             "name": "Revenue Safe",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 39,
+            "format_string": null,
+            "complexity": {
+              "tokens": 8,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 1,
+              "score": 6
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -515,6 +715,16 @@
             "name": "Unused Helper",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 41,
+            "format_string": null,
+            "complexity": {
+              "tokens": 1,
+              "calls": 0,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 0,
+              "lines": 1,
+              "score": 0
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [],
@@ -526,6 +736,16 @@
             "name": "Formatted Label",
             "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
             "line": 43,
+            "format_string": null,
+            "complexity": {
+              "tokens": 13,
+              "calls": 1,
+              "iterators": 0,
+              "calculates": 0,
+              "max_nesting": 1,
+              "lines": 3,
+              "score": 5
+            },
             "display_folder": null,
             "is_hidden": false,
             "measure_dependencies": [
@@ -810,12 +1030,12 @@
     "CRITICAL": 0,
     "HIGH": 7,
     "MEDIUM": 7,
-    "LOW": 7,
-    "INFO": 7
+    "LOW": 5,
+    "INFO": 11
   },
   "status_breakdown": {
     "confirmed": 7,
-    "potential": 20,
+    "potential": 22,
     "inconclusive": 1
   },
   "findings": [
@@ -1108,45 +1328,6 @@
       "id": "MOD007-27d780fb"
     },
     {
-      "rule_id": "DAX008",
-      "title": "Total may differ from the sum of visible rows: '_Measures'[Bonus]",
-      "category": "Filter context",
-      "severity": "LOW",
-      "status": "potential",
-      "evidence": [
-        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate"
-      ],
-      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
-      "object_ref": "ContosoRetail/measure/_Measures/Bonus/totals",
-      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
-      "impact": "Users may perceive totals as wrong.",
-      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
-      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
-      "line": 26,
-      "confidence_note": "",
-      "id": "DAX008-166e0024"
-    },
-    {
-      "rule_id": "DAX008",
-      "title": "Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]",
-      "category": "Filter context",
-      "severity": "LOW",
-      "status": "potential",
-      "evidence": [
-        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate",
-        "uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design"
-      ],
-      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
-      "object_ref": "ContosoRetail/measure/_Measures/Segment Revenue/totals",
-      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
-      "impact": "Users may perceive totals as wrong.",
-      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
-      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
-      "line": 30,
-      "confidence_note": "",
-      "id": "DAX008-99bc75d5"
-    },
-    {
       "rule_id": "DAX009",
       "title": "Division operator '/' with a non-constant denominator in '_Measures'[Revenue Safe]",
       "category": "DAX",
@@ -1265,6 +1446,45 @@
     },
     {
       "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Bonus]",
+      "category": "Filter context",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Bonus/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 26,
+      "confidence_note": "",
+      "id": "DAX008-166e0024"
+    },
+    {
+      "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]",
+      "category": "Filter context",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate",
+        "uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Segment Revenue/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 30,
+      "confidence_note": "",
+      "id": "DAX008-99bc75d5"
+    },
+    {
+      "rule_id": "DAX008",
       "title": "Total may differ from the sum of visible rows: '_Measures'[Active Customers]",
       "category": "Filter context",
       "severity": "INFO",
@@ -1281,6 +1501,42 @@
       "line": 28,
       "confidence_note": "",
       "id": "DAX008-e4611c35"
+    },
+    {
+      "rule_id": "DAX014",
+      "title": "Measures without a format string (18 of 21)",
+      "category": "DAX",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "[Active Customers]",
+        "[Avg Customer Spend]",
+        "[Bonus]",
+        "[Broken UseRel]",
+        "[Customer's Rank]",
+        "[Formatted Label]",
+        "[High Value Revenue]",
+        "[Margin %]",
+        "[Revenue (R$) – Net]",
+        "[Revenue All Customers]",
+        "[Revenue by Ship Date]",
+        "[Revenue LY]",
+        "[Revenue Safe]",
+        "[Sales Per Row]",
+        "[Segment Revenue]",
+        "[Target Amount]",
+        "[Total Balance]",
+        "[Unused Helper]"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/no-format",
+      "explanation": "These measures have no formatString; numeric results use the default format.",
+      "impact": "Inconsistent number formatting across visuals (decimals, currency, percentages).",
+      "recommendation": "Set a format string on numeric measures (text/color measures do not need one).",
+      "verification": "Review the measures in the Model view > Properties > Format.",
+      "line": null,
+      "confidence_note": "",
+      "id": "DAX014-fa0ea27c"
     },
     {
       "rule_id": "MOD002",
@@ -1302,6 +1558,31 @@
       "line": 14,
       "confidence_note": "",
       "id": "MOD002-a665549f"
+    },
+    {
+      "rule_id": "MOD010",
+      "title": "Relationship key columns visible on the many side (7)",
+      "category": "Model structure",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "'Account'[CustomerKey]",
+        "'Sales Target'[ProductKey]",
+        "'Sales Target'[TargetDate]",
+        "'Sales'[CustomerKey]",
+        "'Sales'[OrderDate]",
+        "'Sales'[ProductKey]",
+        "'Sales'[ShipDate]"
+      ],
+      "path": "ContosoRetail.SemanticModel",
+      "object_ref": "ContosoRetail/visible-fk",
+      "explanation": "Foreign-key columns on fact tables are visible in the field list.",
+      "impact": "Users may slice by the fact-side key instead of the dimension, which does not filter other facts.",
+      "recommendation": "Hide foreign-key columns on the many side and expose the dimension columns instead.",
+      "verification": "Check the Data pane: these columns should not appear to report authors.",
+      "line": null,
+      "confidence_note": "",
+      "id": "MOD010-27aeba3a"
     },
     {
       "rule_id": "VIS004",
@@ -1887,7 +2168,7 @@
     "Unused-measure detection skipped for model 'ContosoRetail': reports not fully interpretable (ContosoRetail)"
   ],
   "metrics": {
-    "analysis_ms": 4.2,
-    "findings_total": 28
+    "analysis_ms": 2.6,
+    "findings_total": 30
   }
 }

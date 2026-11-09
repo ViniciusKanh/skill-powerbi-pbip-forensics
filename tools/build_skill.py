@@ -27,6 +27,7 @@ PKG = "pbip_forensics"
 OUT = ROOT / "agensi" / "powerbi-pbip-forensics" / "scripts"
 
 SCRIPTS = {
+    "pbip_full_audit.py": "pbip_forensics.entrypoints.ep_full_audit",
     "pbip_inspect.py": "pbip_forensics.entrypoints.ep_inspect",
     "pbip_model_audit.py": "pbip_forensics.entrypoints.ep_model_audit",
     "pbip_visual_deps.py": "pbip_forensics.entrypoints.ep_visual_deps",

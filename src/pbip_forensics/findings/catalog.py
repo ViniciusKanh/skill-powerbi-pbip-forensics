@@ -92,6 +92,15 @@ RULES: dict[str, tuple[str, str, str, str, str]] = {
     "VIS007": ("Visual dependencies", "MEDIUM", "potential",
                "Page filter on a table that cannot reach tables aggregated by measures on the same page.",
                "Only column filters with a resolvable table."),
+    "MOD010": ("Model structure", "INFO", "potential", "Foreign-key columns visible on the many side "
+               "(aggregated per model).", "Auto date tables are excluded."),
+    "DAX014": ("DAX", "INFO", "potential", "Measures without a format string (aggregated per model).",
+               "Informational; text/color measures do not need a format."),
+    "VIS008": ("Visual dependencies", "LOW", "potential", "Page with more than 20 data-bound visuals.",
+               "Only visuals with data bindings are counted; the threshold is a guideline."),
+    "COL001": ("Model structure", "INFO", "potential", "Columns with no detected use in measures, calculated "
+               "columns/tables, relationships, hierarchies, sort-by, visuals, filters or formatting.",
+               "Same gate as DAX011 (all bound reports fully interpretable); RLS and other reports are not checked."),
     "PERF001": ("Performance", "HIGH / MEDIUM", "confirmed",
                 "Visual whose measured duration in a Performance Analyzer export exceeds thresholds "
                 "(default 1000/3000 ms, configurable).", "Only measured durations; nothing is estimated."),

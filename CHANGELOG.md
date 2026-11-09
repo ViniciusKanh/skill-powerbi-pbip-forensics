@@ -12,4 +12,11 @@
   - Markdown, HTML and JSON reports.
   - Command-line interface.
   - Agensi skill with six standalone scripts.
-  - Synthetic examples and 93 tests.
+  - Synthetic examples and 101 tests.
+  - Insight layer: health score per area (indicative formula shown in the report), plain-language summary,
+    grouped "what to do first" actions, model map diagram, measure complexity/hub statistics, page cards and
+    data-source list (HTML and Markdown, English and pt-BR).
+  - Rules MOD010 (visible foreign keys), DAX014 (measures without format), VIS008 (heavy pages) and COL001
+    (unused columns); fields used in conditional formatting count as used.
+  - Fewer false positives in VIS005/VIS006/VIS007 (lookup and parameter tables, measures linking tables,
+    formatting-only page references) and DAX008 lowered to INFO.

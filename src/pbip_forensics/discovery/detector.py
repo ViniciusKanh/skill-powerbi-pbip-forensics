@@ -25,10 +25,10 @@ from pbip_forensics.security.safety import (
 
 
 def discover(path: str | Path, max_bytes: int = DEFAULT_MAX_FILE_BYTES,
-             max_files: int = DEFAULT_MAX_FILES) -> Project:
+             max_files: int = DEFAULT_MAX_FILES, exclude_dirs: set[str] | None = None) -> Project:
     """Localiza relatórios e modelos sob `path` e os carrega (somente leitura)."""
     root = resolve_root(path)
-    files, skipped = safe_walk(root, max_files)
+    files, skipped = safe_walk(root, max_files, {d.lower() for d in exclude_dirs or set()})
     project = Project(root=root.name, skipped=skipped)
     report_dirs: set[Path] = set()
     model_dirs: set[Path] = set()

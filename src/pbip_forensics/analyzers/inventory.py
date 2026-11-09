@@ -6,6 +6,21 @@ from typing import Any
 
 from pbip_forensics.analyzers.semantic import SemanticIndex
 from pbip_forensics.models import Project
+from pbip_forensics.parsers.dax import CALC_FUNCS, ITERATORS
+
+
+def _complexity(ea: Any) -> dict[str, int]:
+    """Métricas estruturais simples de uma expressão DAX (não medem desempenho real)."""
+    info = ea.info
+    nest = 0
+    for i in range(len(info.calls)):
+        nest = max(nest, len(info.ancestors(i)) + 1)
+    iters = sum(1 for c in info.calls if c.name in ITERATORS)
+    calcs = sum(1 for c in info.calls if c.name in CALC_FUNCS)
+    lines = ea.expression.count("\n") + 1 if ea.expression else 0
+    score = len(info.calls) + 2 * iters + 2 * calcs + 3 * nest + lines // 5 + len(ea.measure_deps)
+    return {"tokens": len(info.tokens), "calls": len(info.calls), "iterators": iters, "calculates": calcs,
+            "max_nesting": nest, "lines": lines, "score": score}
 
 
 def build_inventory(project: Project, indexes: dict[str, SemanticIndex]) -> dict[str, Any]:
@@ -19,6 +34,7 @@ def build_inventory(project: Project, indexes: dict[str, SemanticIndex]) -> dict
                 "name": t.name, "path": t.path, "line": t.line, "role": idx.graph.table_role(t.name) if idx else None,
                 "is_hidden": t.is_hidden, "is_calculated": t.is_calculated,
                 "is_calculation_group": t.is_calculation_group, "columns": [c.name for c in t.columns],
+                "hidden_columns": [c.name for c in t.columns if c.is_hidden],
                 "calculated_columns": [c.name for c in t.columns if c.is_calculated],
                 "measures": [x.name for x in t.measures], "hierarchies": t.hierarchies,
                 "partition_kinds": t.partition_kinds, "data_sources": t.data_sources})
@@ -26,6 +42,7 @@ def build_inventory(project: Project, indexes: dict[str, SemanticIndex]) -> dict
         for x in m.all_measures():
             ea = idx.analyses.get(x.name.lower()) if idx else None
             measures.append({"table": x.table, "name": x.name, "path": x.path, "line": x.line,
+                             "format_string": x.format_string, "complexity": _complexity(ea) if ea else None,
                              "display_folder": x.display_folder, "is_hidden": x.is_hidden,
                              "measure_dependencies": ea.measure_deps if ea else [],
                              "column_references": [f"'{a}'[{b}]" for a, b in ea.column_refs] if ea else [],

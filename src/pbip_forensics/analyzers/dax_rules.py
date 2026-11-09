@@ -43,6 +43,16 @@ def dax_findings(model: SemanticModel, idx: SemanticIndex) -> list[Finding]:
             "Break the cycle by extracting the shared logic into a base measure.",
             "Open one of the measures in Power BI Desktop; the formula bar shows the circular dependency error.",
             line=first.line))
+    # DAX014 — medidas sem formato definido (consolidado por modelo)
+    no_fmt = sorted((m for m in model.all_measures() if not m.format_string), key=lambda m: m.name.lower())
+    if no_fmt:
+        out.append(Finding(
+            "DAX014", f"Measures without a format string ({len(no_fmt)} of {len(model.all_measures())})", CAT_DAX,
+            "INFO", "potential", [f"[{m.name}]" for m in no_fmt[:25]], no_fmt[0].path, f"{model.name}/no-format",
+            "These measures have no formatString; numeric results use the default format.",
+            "Inconsistent number formatting across visuals (decimals, currency, percentages).",
+            "Set a format string on numeric measures (text/color measures do not need one).",
+            "Review the measures in the Model view > Properties > Format."))
     return out
 
 
@@ -192,7 +202,7 @@ def _expr_findings(model: SemanticModel, idx: SemanticIndex, ea: ExprAnalysis) -
         if "DISTINCTCOUNT" in names:
             reasons.append("DISTINCTCOUNT is non-additive: the total is not the sum of rows")
         if reasons:
-            sev = "LOW" if reasons[0].startswith("IF/SWITCH") else "INFO"
+            sev = "INFO"  # comportamento esperado do Power BI; serve de alerta, não de defeito
             out.append(Finding(
                 "DAX008", f"Total may differ from the sum of visible rows: {owner}", CAT_CTX, sev, "potential",
                 reasons, ea.path, f"{ref}/totals",

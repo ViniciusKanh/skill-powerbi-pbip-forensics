@@ -68,6 +68,7 @@ class Column:
     expression: str | None = None
     path: str = ""
     line: int | None = None
+    sort_by: str | None = None
 
 
 @dataclass
@@ -119,6 +120,8 @@ class Table:
     columns: list[Column] = field(default_factory=list)
     measures: list[Measure] = field(default_factory=list)
     hierarchies: list[str] = field(default_factory=list)
+    hierarchy_columns: list[str] = field(default_factory=list)
+    calc_source: str | None = None  # DAX da tabela calculada (apenas para análise de referências)
     partition_kinds: list[str] = field(default_factory=list)
     data_sources: list[str] = field(default_factory=list)
 
@@ -471,7 +474,8 @@ def rel(root: Path, path: Path) -> str:
         return path.name
 
 
-def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path], list[str]]:
+def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES,
+              exclude_dirs: set[str] | None = None) -> tuple[list[Path], list[str]]:
     files: list[Path] = []
     skipped: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
@@ -480,6 +484,9 @@ def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path
         for d in sorted(dirnames):
             full = current / d
             if d in SKIP_DIRS:
+                continue
+            if exclude_dirs and d.lower() in exclude_dirs:
+                skipped.append(f"excluded-by-option: {rel(root, current)}/{d}")
                 continue
             if full.is_symlink() and not is_within(root, full):
                 skipped.append(f"symlink-outside-scope: {rel(root, current)}/{d}")

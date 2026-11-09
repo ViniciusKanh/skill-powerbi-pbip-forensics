@@ -126,3 +126,14 @@ def test_scripts_help_and_no_forbidden_imports(tmp_path: Path):
         assert "pbip_forensics." not in text.split("# Módulos incluídos")[0]
         for bad in ("import subprocess", "import socket", "urllib", "os.system", "eval(", "base64"):
             assert bad not in text, (script, bad)
+
+
+def test_full_audit_script_one_shot(tmp_path: Path):
+    out = tmp_path / "report"
+    r = run_isolated("pbip_full_audit.py", ["--project", str(EXAMPLES / "synthetic_project"), "--output", str(out)],
+                     tmp_path)
+    assert r.returncode == 0, r.stderr
+    doc = load(out / "findings.json")
+    engine = run_audit(discover(EXAMPLES / "synthetic_project"))
+    assert {f["id"] for f in doc["findings"]} == {f["id"] for f in engine["findings"]}
+    assert (out / "audit-report.html").read_text(encoding="utf-8").startswith("<!doctype html>")

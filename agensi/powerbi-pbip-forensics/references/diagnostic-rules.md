@@ -42,4 +42,8 @@ Severities: CRITICAL, HIGH, MEDIUM, LOW, INFO. Confidence is never expressed as 
 | VIS005 | Visual dependencies | HIGH | potential | Visual groups by a table whose filters cannot reach the tables aggregated by a measure (considering USERELATIONSHIP in the measure). | Uses direction-aware active paths only. |
 | VIS006 | Visual dependencies | HIGH | potential | Table/matrix combines columns from tables with no active path in either direction. | Only for grid visuals (table/matrix). |
 | VIS007 | Visual dependencies | MEDIUM | potential | Page filter on a table that cannot reach tables aggregated by measures on the same page. | Only column filters with a resolvable table. |
+| MOD010 | Model structure | INFO | potential | Foreign-key columns visible on the many side (aggregated per model). | Auto date tables are excluded. |
+| DAX014 | DAX | INFO | potential | Measures without a format string (aggregated per model). | Informational; text/color measures do not need a format. |
+| VIS008 | Visual dependencies | LOW | potential | Page with more than 20 data-bound visuals. | Only visuals with data bindings are counted; the threshold is a guideline. |
+| COL001 | Model structure | INFO | potential | Columns with no detected use in measures, calculated columns/tables, relationships, hierarchies, sort-by, visuals, filters or formatting. | Same gate as DAX011 (all bound reports fully interpretable); RLS and other reports are not checked. |
 | PERF001 | Performance | HIGH / MEDIUM | confirmed | Visual whose measured duration in a Performance Analyzer export exceeds thresholds (default 1000/3000 ms, configurable). | Only measured durations; nothing is estimated. |

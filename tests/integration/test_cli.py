@@ -100,3 +100,33 @@ def test_unicode_paths(tmp_path: Path):
     assert main(["audit", "--project", str(FIXTURES / "special_identifiers"), "--output",
                  str(tmp_path / "saída com espaço"), "--format", "markdown"]) == 0
     assert "Receita" in (tmp_path / "saída com espaço" / "audit-report.md").read_text(encoding="utf-8")
+
+
+def test_run_one_shot_with_autodetected_log_and_excludes(tmp_path: Path, capsys):
+    import shutil
+    proj = tmp_path / "MyBI"
+    shutil.copytree(EXAMPLES / "synthetic_project", proj)
+    shutil.copytree(EXAMPLES / "synthetic_project", proj / "backup")  # cópia antiga: deve ser ignorada
+    shutil.copyfile(EXAMPLES / "sample_performance" / "performance.json", proj / "PowerBIPerformanceData.json")
+    assert main(["run", "--project", str(proj), "--lang", "pt-BR"]) == 0
+    out = tmp_path / "MyBI-forensics"
+    assert {p.name for p in out.iterdir()} == {"audit-report.html", "audit-report.md", "findings.json"}
+    doc = json.loads((out / "findings.json").read_text(encoding="utf-8"))
+    assert doc["inventory"]["counts"]["semantic_models"] == 1
+    assert doc["scope"]["performance_log"] == "PowerBIPerformanceData.json"
+    assert any("excluded" in x for x in doc["limitations"])
+    html_text = (out / "audit-report.html").read_text(encoding="utf-8")
+    assert 'id="findings"' in html_text and "Achados" in html_text
+    assert "Report:" in capsys.readouterr().err
+
+
+def test_html_report_escapes_and_has_sections(tmp_path: Path):
+    from pbip_forensics.reporting.html_report import to_html_report
+    doc = {"project": "<b>x</b>", "findings": [{"id": "X-1", "rule_id": "X", "title": "<script>alert(1)</script>",
+           "category": "c", "severity": "HIGH", "status": "potential", "evidence": ["</details><img src=x>"],
+           "path": "p", "line": 1, "object_ref": "o", "explanation": "", "impact": "", "recommendation": "",
+           "verification": ""}]}
+    out = to_html_report(doc, "en")
+    assert "<script>alert(1)" not in out and "<img src=x>" not in out and "&lt;b&gt;x&lt;/b&gt;" in out
+    for sid in ("summary", "rules", "findings", "performance", "impact", "hypotheses", "actions", "limitations"):
+        assert f'id="{sid}"' in out

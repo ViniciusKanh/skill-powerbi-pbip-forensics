@@ -47,6 +47,20 @@ Do not activate it for binary `.pbix` files. Ask the user to save the file as a 
 
 If something is missing, run whatever is possible and state what could not be analyzed.
 
+## Quick path (recommended)
+
+For most requests, run the one-shot script first. It discovers the project, skips common backup folders,
+auto-detects a Performance Analyzer export inside the project, runs every analysis and writes an interactive
+HTML report (filters by severity/status/rule), plus Markdown and JSON:
+
+```bash
+python scripts/pbip_full_audit.py --project "<project folder>" --output "<output folder>" [--lang pt-BR]
+```
+
+Then read `<output>/findings.json`, answer the user from the evidence, and point them to
+`<output>/audit-report.html`. Use the specialized scripts below for targeted questions (filter investigation,
+version diff, a specific log).
+
 ## Scripts
 
 Every script is standalone. It needs only the Python 3.11+ standard library, reads only the paths
@@ -55,6 +69,7 @@ JSON to stdout. Run `python <script> --help` for every option.
 
 | Script | Purpose | Key arguments |
 |---|---|---|
+| `scripts/pbip_full_audit.py` | **One-shot audit**: everything below + HTML/Markdown/JSON report; auto-detects a performance log; skips backup folders (`--exclude`, `--no-default-excludes`) | `--project`, `--output`, `--performance`, `--lang` |
 | `scripts/pbip_inspect.py` | Discovery and inventory: reports, pages, visuals, tables, columns, measures, relationships, data-source connector names, parse issues | `--project` |
 | `scripts/pbip_model_audit.py` | Relationship graph and model structure (MOD rules), DAX static analysis (DAX rules), parse findings | `--project` |
 | `scripts/pbip_visual_deps.py` | Page → Visual → Field → Table map, binding validation (VIS rules), unused measures; optional filter investigation | `--project`, `--from-table`, `--to-table`, `--measure`, `--visual` |
@@ -81,7 +96,7 @@ Exit codes:
 | "Why does measure M ignore my slicer?" / "Why does M react differently to filters?" | `pbip_visual_deps.py --project P --from-table <slicer table> --measure "M"` |
 | "My total differs from the visible rows" | `pbip_model_audit.py` (look at DAX008, DAX006, MOD004), then `pbip_visual_deps.py --measure "M" --from-table <row table>` |
 | "Which visuals are slow?" | `pbip_perf_log.py --input log.json`. Without a log, run `pbip_model_audit.py` and report only static risks (DAX003/004/005/010) |
-| "Audit this project" | `pbip_inspect.py`, `pbip_model_audit.py`, `pbip_visual_deps.py` (+ `pbip_perf_log.py` if a log exists), then `pbip_report.py` |
+| "Audit this project" | `pbip_full_audit.py` (one command) |
 | "What breaks if I ship this change?" | `pbip_diff.py --before OLD --after NEW`, then `pbip_visual_deps.py --project NEW` to confirm broken bindings |
 | "Which relationships could block propagation?" | `pbip_model_audit.py` (MOD002, MOD003, MOD006, MOD008) and `pbip_visual_deps.py --from-table ... --to-table ...` |
 

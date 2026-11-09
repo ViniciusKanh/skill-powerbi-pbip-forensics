@@ -8,6 +8,7 @@ from pbip_forensics.analyzers.dax_rules import dax_findings
 from pbip_forensics.analyzers.semantic import SemanticIndex
 from pbip_forensics.analyzers.visual_rules import dependency_map, visual_findings
 from pbip_forensics.models import Finding, Project
+from pbip_forensics.parsers.dax import analyze_dax
 
 
 def complex_measures(project: Project, indexes: dict[str, SemanticIndex]) -> set[str]:
@@ -34,6 +35,7 @@ def visual_stage(project: Project, indexes: dict[str, SemanticIndex]
         findings.extend(visual_findings(r, model, idx, complex_set))
         dep_map.extend({"report": r.name, **row} for row in dependency_map(r, idx))
     findings.extend(_unused_measures(project, indexes, limitations))
+    findings.extend(_unused_columns(project, indexes))
     return findings, dep_map, limitations
 
 
@@ -71,3 +73,50 @@ def _unused_measures(project: Project, indexes: dict[str, SemanticIndex], limita
                     "Search other reports connected to this model (byConnection) for the measure.",
                     line=x.line))
     return out
+
+
+def _unused_columns(project: Project, indexes: dict[str, SemanticIndex]) -> list[Finding]:
+    """COL001 — colunas sem nenhum uso detectável (mesmas condições do DAX011)."""
+    out: list[Finding] = []
+    for m in project.models:
+        idx = indexes[m.path]
+        reps = [r for r in project.reports if r.model_path == m.path]
+        if not reps or any(r.format != "pbir" or r.support != "full" or any(v.limitations for v in r.visuals())
+                           for r in reps):
+            continue
+        used: set[tuple[str, str]] = set()
+        for rel in m.relationships:
+            used |= {(rel.from_table.lower(), rel.from_column.lower()), (rel.to_table.lower(), rel.to_column.lower())}
+        for ea in [*idx.analyses.values(), *idx.column_analyses]:
+            used |= {(t.lower(), c.lower()) for t, c in ea.column_refs}
+        for t in m.tables:
+            used |= {(t.name.lower(), c.lower()) for c in t.hierarchy_columns}
+            used |= {(t.name.lower(), c.sort_by.lower()) for c in t.columns if c.sort_by}
+            if t.calc_source:
+                used |= {(ref.table.lower(), ref.name.lower()) for ref in analyze_dax(t.calc_source).refs if ref.table}
+        for r in reps:
+            refs = [*r.filters, *[x for p in r.pages for x in p.filters], *[x for v in r.visuals() for x in v.fields]]
+            for f in refs:
+                if f.entity and f.property:
+                    used.add((f.entity.lower(), f.property.lower()))
+        for t in m.tables:
+            if t.name.startswith(("LocalDateTable_", "DateTableTemplate_")) or t.is_calculation_group:
+                continue
+            if t.measures and all(c.is_hidden for c in t.columns) and len(t.columns) <= 1:
+                continue  # tabela de medidas (coluna técnica oculta)
+            unused = [c.name for c in t.columns if (t.name.lower(), c.name.lower()) not in used]
+            if not unused:
+                continue
+            out.append(Finding(
+                "COL001", f"Columns with no detected use in '{t.name}' ({len(unused)} of {len(t.columns)})",
+                "Model structure", "INFO", "potential", [", ".join(unused[:30]) + (" …" if len(unused) > 30 else ""),
+                "Checked: measures, calculated columns/tables, relationships, hierarchies, sort-by, visuals, filters "
+                "and conditional formatting. Not checked: RLS roles, other reports, external tools."],
+                t.path, f"{m.name}/table/{t.name}/unused-columns",
+                "No reference to these columns was found in the analyzed model and reports.",
+                "Unused columns increase model size and refresh time (especially high-cardinality text columns).",
+                "Confirm with lineage/usage metrics, then remove them in Power Query.",
+                "Search other reports connected to the published model and RLS role filters before removing.",
+                line=t.line))
+    return out
+

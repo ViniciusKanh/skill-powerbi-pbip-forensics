@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "script": "model_audit",
   "project": "synthetic_project",
-  "generated_at": "2026-11-09T02:39:50+00:00",
+  "generated_at": "2026-11-09T13:47:18+00:00",
   "findings": [
     {
       "rule_id": "DAX001",
@@ -171,45 +171,6 @@
       "id": "MOD007-27d780fb"
     },
     {
-      "rule_id": "DAX008",
-      "title": "Total may differ from the sum of visible rows: '_Measures'[Bonus]",
-      "category": "Filter context",
-      "severity": "LOW",
-      "status": "potential",
-      "evidence": [
-        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate"
-      ],
-      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
-      "object_ref": "ContosoRetail/measure/_Measures/Bonus/totals",
-      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
-      "impact": "Users may perceive totals as wrong.",
-      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
-      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
-      "line": 26,
-      "confidence_note": "",
-      "id": "DAX008-166e0024"
-    },
-    {
-      "rule_id": "DAX008",
-      "title": "Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]",
-      "category": "Filter context",
-      "severity": "LOW",
-      "status": "potential",
-      "evidence": [
-        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate",
-        "uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design"
-      ],
-      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
-      "object_ref": "ContosoRetail/measure/_Measures/Segment Revenue/totals",
-      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
-      "impact": "Users may perceive totals as wrong.",
-      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
-      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
-      "line": 30,
-      "confidence_note": "",
-      "id": "DAX008-99bc75d5"
-    },
-    {
       "rule_id": "DAX009",
       "title": "Division operator '/' with a non-constant denominator in '_Measures'[Revenue Safe]",
       "category": "DAX",
@@ -328,6 +289,45 @@
     },
     {
       "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Bonus]",
+      "category": "Filter context",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Bonus/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 26,
+      "confidence_note": "",
+      "id": "DAX008-166e0024"
+    },
+    {
+      "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]",
+      "category": "Filter context",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate",
+        "uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Segment Revenue/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 30,
+      "confidence_note": "",
+      "id": "DAX008-99bc75d5"
+    },
+    {
+      "rule_id": "DAX008",
       "title": "Total may differ from the sum of visible rows: '_Measures'[Active Customers]",
       "category": "Filter context",
       "severity": "INFO",
@@ -344,6 +344,42 @@
       "line": 28,
       "confidence_note": "",
       "id": "DAX008-e4611c35"
+    },
+    {
+      "rule_id": "DAX014",
+      "title": "Measures without a format string (18 of 21)",
+      "category": "DAX",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "[Active Customers]",
+        "[Avg Customer Spend]",
+        "[Bonus]",
+        "[Broken UseRel]",
+        "[Customer's Rank]",
+        "[Formatted Label]",
+        "[High Value Revenue]",
+        "[Margin %]",
+        "[Revenue (R$) – Net]",
+        "[Revenue All Customers]",
+        "[Revenue by Ship Date]",
+        "[Revenue LY]",
+        "[Revenue Safe]",
+        "[Sales Per Row]",
+        "[Segment Revenue]",
+        "[Target Amount]",
+        "[Total Balance]",
+        "[Unused Helper]"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/no-format",
+      "explanation": "These measures have no formatString; numeric results use the default format.",
+      "impact": "Inconsistent number formatting across visuals (decimals, currency, percentages).",
+      "recommendation": "Set a format string on numeric measures (text/color measures do not need one).",
+      "verification": "Review the measures in the Model view > Properties > Format.",
+      "line": null,
+      "confidence_note": "",
+      "id": "DAX014-fa0ea27c"
     },
     {
       "rule_id": "MOD002",
@@ -365,18 +401,43 @@
       "line": 14,
       "confidence_note": "",
       "id": "MOD002-a665549f"
+    },
+    {
+      "rule_id": "MOD010",
+      "title": "Relationship key columns visible on the many side (7)",
+      "category": "Model structure",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "'Account'[CustomerKey]",
+        "'Sales Target'[ProductKey]",
+        "'Sales Target'[TargetDate]",
+        "'Sales'[CustomerKey]",
+        "'Sales'[OrderDate]",
+        "'Sales'[ProductKey]",
+        "'Sales'[ShipDate]"
+      ],
+      "path": "ContosoRetail.SemanticModel",
+      "object_ref": "ContosoRetail/visible-fk",
+      "explanation": "Foreign-key columns on fact tables are visible in the field list.",
+      "impact": "Users may slice by the fact-side key instead of the dimension, which does not filter other facts.",
+      "recommendation": "Hide foreign-key columns on the many side and expose the dimension columns instead.",
+      "verification": "Check the Data pane: these columns should not appear to report authors.",
+      "line": null,
+      "confidence_note": "",
+      "id": "MOD010-27aeba3a"
     }
   ],
   "severity_breakdown": {
     "CRITICAL": 0,
     "HIGH": 3,
     "MEDIUM": 5,
-    "LOW": 7,
-    "INFO": 3
+    "LOW": 5,
+    "INFO": 7
   },
   "status_breakdown": {
     "confirmed": 2,
-    "potential": 16,
+    "potential": 18,
     "inconclusive": 0
   },
   "limitations": [

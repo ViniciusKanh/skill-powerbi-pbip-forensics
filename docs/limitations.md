@@ -27,6 +27,9 @@
   mentioned as hypotheses when no structural cause is found.
 - **Unused measures (DAX011)** are reported only when every report bound to the model is PBIR and fully
   interpretable. Reports connected to the published model from elsewhere are never visible.
+- **Unused columns (COL001)** use the same gate as DAX011. Columns referenced only by RLS roles, other reports,
+  Analyze in Excel or external tools are not visible to the audit; confirm with lineage before removing them.
+- **Health score** is an indicative summary of the findings (formula in the report), not a quality certificate.
 - **Multi-model projects:** each report is validated against the model it references by path. Change-impact
   analysis computes impacts for the first semantic model only.
 

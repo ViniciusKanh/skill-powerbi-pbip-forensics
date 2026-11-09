@@ -68,6 +68,7 @@ class Column:
     expression: str | None = None
     path: str = ""
     line: int | None = None
+    sort_by: str | None = None
 
 
 @dataclass
@@ -119,6 +120,8 @@ class Table:
     columns: list[Column] = field(default_factory=list)
     measures: list[Measure] = field(default_factory=list)
     hierarchies: list[str] = field(default_factory=list)
+    hierarchy_columns: list[str] = field(default_factory=list)
+    calc_source: str | None = None  # DAX da tabela calculada (apenas para análise de referências)
     partition_kinds: list[str] = field(default_factory=list)
     data_sources: list[str] = field(default_factory=list)
 
@@ -720,6 +723,9 @@ def normalized_tokens(expression: str) -> list[str]:
 # Funções que criam colunas implícitas ([Value], [Date]...) em tabelas temporárias.
 _IMPLICIT_COLUMN_FUNCS = {"GENERATESERIES", "CALENDAR", "CALENDARAUTO", "DATATABLE", "ROW"}
 _MODIFIER_FUNCS = FILTER_REMOVERS | {"USERELATIONSHIP", "CROSSFILTER", "KEEPFILTERS", "TREATAS"}
+# Funções que apenas consultam/inspecionam valores (não definem a tabela agregada).
+_PROBE_FUNCS = {"SELECTEDVALUE", "HASONEVALUE", "HASONEFILTER", "ISFILTERED", "ISCROSSFILTERED", "ISINSCOPE",
+                "LOOKUPVALUE", "RELATED", "FIRSTNONBLANK", "LASTNONBLANK"}
 
 
 @dataclass
@@ -844,7 +850,7 @@ class SemanticIndex:
         for call in info.calls:
             if call.name in CALC_FUNCS:
                 ranges.extend(call.args[1:])
-            elif call.name in _MODIFIER_FUNCS and call.args:
+            elif (call.name in _MODIFIER_FUNCS or call.name in _PROBE_FUNCS) and call.args:
                 ranges.append((call.args[0][0], call.args[-1][1]))
         return ranges
 
@@ -1122,6 +1128,16 @@ def dax_findings(model: SemanticModel, idx: SemanticIndex) -> list[Finding]:
             "Break the cycle by extracting the shared logic into a base measure.",
             "Open one of the measures in Power BI Desktop; the formula bar shows the circular dependency error.",
             line=first.line))
+    # DAX014 — medidas sem formato definido (consolidado por modelo)
+    no_fmt = sorted((m for m in model.all_measures() if not m.format_string), key=lambda m: m.name.lower())
+    if no_fmt:
+        out.append(Finding(
+            "DAX014", f"Measures without a format string ({len(no_fmt)} of {len(model.all_measures())})", CAT_DAX,
+            "INFO", "potential", [f"[{m.name}]" for m in no_fmt[:25]], no_fmt[0].path, f"{model.name}/no-format",
+            "These measures have no formatString; numeric results use the default format.",
+            "Inconsistent number formatting across visuals (decimals, currency, percentages).",
+            "Set a format string on numeric measures (text/color measures do not need one).",
+            "Review the measures in the Model view > Properties > Format."))
     return out
 
 
@@ -1271,7 +1287,7 @@ def _expr_findings(model: SemanticModel, idx: SemanticIndex, ea: ExprAnalysis) -
         if "DISTINCTCOUNT" in names:
             reasons.append("DISTINCTCOUNT is non-additive: the total is not the sum of rows")
         if reasons:
-            sev = "LOW" if reasons[0].startswith("IF/SWITCH") else "INFO"
+            sev = "INFO"  # comportamento esperado do Power BI; serve de alerta, não de defeito
             out.append(Finding(
                 "DAX008", f"Total may differ from the sum of visible rows: {owner}", CAT_CTX, sev, "potential",
                 reasons, ea.path, f"{ref}/totals",
@@ -1362,7 +1378,8 @@ def rel(root: Path, path: Path) -> str:
         return path.name
 
 
-def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path], list[str]]:
+def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES,
+              exclude_dirs: set[str] | None = None) -> tuple[list[Path], list[str]]:
     files: list[Path] = []
     skipped: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
@@ -1371,6 +1388,9 @@ def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path
         for d in sorted(dirnames):
             full = current / d
             if d in SKIP_DIRS:
+                continue
+            if exclude_dirs and d.lower() in exclude_dirs:
+                skipped.append(f"excluded-by-option: {rel(root, current)}/{d}")
                 continue
             if full.is_symlink() and not is_within(root, full):
                 skipped.append(f"symlink-outside-scope: {rel(root, current)}/{d}")
@@ -1525,6 +1545,23 @@ def _title(visual: dict[str, Any]) -> str | None:
     return val[1:-1].replace("''", "'") if len(val) >= 2 and val[0] == "'" == val[-1] else val
 
 
+def format_refs(obj: Any, limit: int = 500) -> list[FieldRef]:
+    out: list[FieldRef] = []
+    stack = [obj]
+    while stack and len(out) < limit:
+        cur = stack.pop()
+        if isinstance(cur, dict):
+            if ("Measure" in cur or "Column" in cur) and isinstance(cur.get("Measure", cur.get("Column")), dict):
+                fr = field_from_container(cur, None, "format", "format")
+                if fr is not None and fr.entity and fr.property:
+                    out.append(fr)
+                    continue
+            stack.extend(cur.values())
+        elif isinstance(cur, list):
+            stack.extend(cur)
+    return out
+
+
 def parse_visual_json(data: Any, page: str, path: str) -> Visual:
     if not isinstance(data, dict):
         return Visual(name=Path(path).parent.name, page=page, visual_type="unparsed", path=path,
@@ -1546,6 +1583,11 @@ def parse_visual_json(data: Any, page: str, path: str) -> Visual:
     for srt in (query.get("sortDefinition") or {}).get("sort", []) or []:
         fr = field_from_container((srt or {}).get("field"), None, "sort", "sort")
         if fr is not None:
+            v.fields.append(fr)
+    seen = {(f.kind, f.key()) for f in v.fields}
+    for fr in format_refs([vis.get("objects"), vis.get("visualContainerObjects")]):
+        if (fr.kind, fr.key()) not in seen:
+            seen.add((fr.kind, fr.key()))
             v.fields.append(fr)
     vfilters = _filters(data.get("filterConfig"))
     v.filter_count = len(vfilters)
@@ -1650,7 +1692,7 @@ def load_report(root: Path, folder: Path, max_bytes: int = DEFAULT_MAX_FILE_BYTE
             disp = str(pdata.get("displayName", pname)) if isinstance(pdata, dict) else pname
             page = Page(name=pname, display_name=disp, path=rel(root, pdir))
             if isinstance(pdata, dict):
-                page.filters = _filters(pdata.get("filterConfig"))
+                page.filters = _filters(pdata.get("filterConfig")) + format_refs(pdata.get("objects"))
             vdir = pdir / "visuals"
             for vd in sorted(vdir.iterdir()) if vdir.is_dir() else []:
                 vj = vd / "visual.json"
@@ -1685,6 +1727,7 @@ def load_report(root: Path, folder: Path, max_bytes: int = DEFAULT_MAX_FILE_BYTE
 # ----------------------------------------------------------------------
 CAT_VIS = "Visual dependencies"
 _GRID_VISUALS = {"tableEx", "pivotTable", "matrix", "table"}
+VISUALS_PER_PAGE_THRESHOLD = 20  # limite orientativo de visuais com dados por página
 
 
 def resolve_field(idx: SemanticIndex, report: Report, f: FieldRef) -> tuple[str, str]:
@@ -1711,6 +1754,14 @@ def resolve_field(idx: SemanticIndex, report: Report, f: FieldRef) -> tuple[str,
         return "ok", "column"
     return ("kind-mismatch", "a measure with this name exists") if is_mea else \
         ("missing-field", f"column '{f.property}' not found in '{tbl.name}'")
+
+
+def unreached_bases(idx: SemanticIndex, src: str, measure: str) -> tuple[list[str], list[str]]:
+    bases = sorted(idx.base_tables(measure))
+    reached = [b for b in bases if reaches(idx, src, b, measure)]
+    blocked = [b for b in bases if b not in reached and idx.graph.table_role(b) != "disconnected"
+               and not any(reaches(idx, b, r, measure) for r in reached)]
+    return bases, blocked
 
 
 def dependency_map(report: Report, idx: SemanticIndex | None) -> list[dict[str, Any]]:
@@ -1781,8 +1832,7 @@ def visual_findings(report: Report, model: SemanticModel | None, idx: SemanticIn
             # VIS005 — colunas cujo filtro não alcança as tabelas da medida
             for ctable in sorted(set(columns)):
                 for m in measures:
-                    bases = idx.base_tables(m)
-                    blocked = [b for b in sorted(bases) if not reaches(idx, ctable, b, m)]
+                    bases, blocked = unreached_bases(idx, ctable, m)
                     if bases and blocked:
                         out.append(Finding(
                             "VIS005", f"Grouping by '{ctable}' cannot filter [{m}]: {label}", CAT_VIS, "HIGH",
@@ -1799,10 +1849,16 @@ def visual_findings(report: Report, model: SemanticModel | None, idx: SemanticIn
                             f"Run: pbip-forensics investigate --from-table \"{ctable}\" --measure \"{m}\"."))
             # VIS006 — tabelas sem medida e sem relacionamento entre si
             tables = sorted(set(columns))
+            # Uma medida/agregação "liga" as tabelas quando os filtros de ambas alcançam o que ela agrega.
+            linkers: list[set[str]] = [set(idx.base_tables(m)) for m in measures]
+            linkers += [{idx.table_name(f.entity) or f.entity} for f in v.fields
+                        if f.usage == "projection" and f.kind == "aggregation" and f.entity]
             if v.visual_type in _GRID_VISUALS and len(tables) >= 2:
                 for i, a in enumerate(tables):
                     for b in tables[i + 1:]:
-                        if not reaches(idx, a, b) and not reaches(idx, b, a):
+                        linked = any(lk and any(reaches(idx, a, t) for t in lk) and any(reaches(idx, b, t) for t in lk)
+                                     for lk in linkers)
+                        if not reaches(idx, a, b) and not reaches(idx, b, a) and not linked:
                             out.append(Finding(
                                 "VIS006", f"Unrelated tables combined in {label}: '{a}' and '{b}'", CAT_VIS, "HIGH",
                                 "potential", [f"Columns from '{a}' and '{b}' in the same {v.visual_type}",
@@ -1813,15 +1869,26 @@ def visual_findings(report: Report, model: SemanticModel | None, idx: SemanticIn
                                 "customer) or show a relationship error.",
                                 "Activate/create the relationship path or add a measure that defines the link.",
                                 f"Run: pbip-forensics investigate --from-table \"{a}\" --to-table \"{b}\"."))
+        # VIS008 — páginas com muitos visuais ligados a dados
+        data_visuals = [v for v in page.visuals if any(f.usage == "projection" for f in v.fields)]
+        if len(data_visuals) > VISUALS_PER_PAGE_THRESHOLD:
+            out.append(Finding(
+                "VIS008", f"Page '{page.display_name}' has {len(data_visuals)} data-bound visuals", CAT_VIS, "LOW",
+                "potential", [f"{len(data_visuals)} visuals with data bindings (guideline: "
+                              f"<= {VISUALS_PER_PAGE_THRESHOLD})", f"{len(page.visuals)} visuals in total"],
+                page.path, f"{report.name}/{page.name}/visual-count",
+                "Every data-bound visual sends at least one query when the page loads or a slicer changes.",
+                "Slower page loads and more 'Other' time while visuals wait for each other.",
+                "Consolidate KPI cards (e.g., one multi-row card), move detail to drill-through or tooltip pages.",
+                "Record the page with Performance Analyzer and check 'Other' time per visual."))
         # VIS007 — filtros de página que não alcançam as medidas da página
         for pf in page.filters:
-            if idx is None or not pf.entity or pf.kind not in ("column", "hierarchyLevel"):
+            if idx is None or not pf.entity or pf.usage != "filter" or pf.kind not in ("column", "hierarchyLevel"):
                 continue
             ftable = idx.table_name(pf.entity)
             if ftable is None:
                 continue
-            unaffected = [m for m in sorted(page_measures, key=str.lower)
-                          if idx.base_tables(m) and not all(reaches(idx, ftable, b, m) for b in idx.base_tables(m))]
+            unaffected = [m for m in sorted(page_measures, key=str.lower) if unreached_bases(idx, ftable, m)[1]]
             if unaffected:
                 out.append(Finding(
                     "VIS007", f"Page filter {pf.key()} does not reach some measures on '{page.display_name}'", CAT_VIS,
@@ -1858,6 +1925,7 @@ def visual_stage(project: Project, indexes: dict[str, SemanticIndex]
         findings.extend(visual_findings(r, model, idx, complex_set))
         dep_map.extend({"report": r.name, **row} for row in dependency_map(r, idx))
     findings.extend(_unused_measures(project, indexes, limitations))
+    findings.extend(_unused_columns(project, indexes))
     return findings, dep_map, limitations
 
 
@@ -1894,6 +1962,51 @@ def _unused_measures(project: Project, indexes: dict[str, SemanticIndex], limita
                     "Confirm with workspace lineage / usage metrics before removing.",
                     "Search other reports connected to this model (byConnection) for the measure.",
                     line=x.line))
+    return out
+
+
+def _unused_columns(project: Project, indexes: dict[str, SemanticIndex]) -> list[Finding]:
+    out: list[Finding] = []
+    for m in project.models:
+        idx = indexes[m.path]
+        reps = [r for r in project.reports if r.model_path == m.path]
+        if not reps or any(r.format != "pbir" or r.support != "full" or any(v.limitations for v in r.visuals())
+                           for r in reps):
+            continue
+        used: set[tuple[str, str]] = set()
+        for rel in m.relationships:
+            used |= {(rel.from_table.lower(), rel.from_column.lower()), (rel.to_table.lower(), rel.to_column.lower())}
+        for ea in [*idx.analyses.values(), *idx.column_analyses]:
+            used |= {(t.lower(), c.lower()) for t, c in ea.column_refs}
+        for t in m.tables:
+            used |= {(t.name.lower(), c.lower()) for c in t.hierarchy_columns}
+            used |= {(t.name.lower(), c.sort_by.lower()) for c in t.columns if c.sort_by}
+            if t.calc_source:
+                used |= {(ref.table.lower(), ref.name.lower()) for ref in analyze_dax(t.calc_source).refs if ref.table}
+        for r in reps:
+            refs = [*r.filters, *[x for p in r.pages for x in p.filters], *[x for v in r.visuals() for x in v.fields]]
+            for f in refs:
+                if f.entity and f.property:
+                    used.add((f.entity.lower(), f.property.lower()))
+        for t in m.tables:
+            if t.name.startswith(("LocalDateTable_", "DateTableTemplate_")) or t.is_calculation_group:
+                continue
+            if t.measures and all(c.is_hidden for c in t.columns) and len(t.columns) <= 1:
+                continue  # tabela de medidas (coluna técnica oculta)
+            unused = [c.name for c in t.columns if (t.name.lower(), c.name.lower()) not in used]
+            if not unused:
+                continue
+            out.append(Finding(
+                "COL001", f"Columns with no detected use in '{t.name}' ({len(unused)} of {len(t.columns)})",
+                "Model structure", "INFO", "potential", [", ".join(unused[:30]) + (" …" if len(unused) > 30 else ""),
+                "Checked: measures, calculated columns/tables, relationships, hierarchies, sort-by, visuals, filters "
+                "and conditional formatting. Not checked: RLS roles, other reports, external tools."],
+                t.path, f"{m.name}/table/{t.name}/unused-columns",
+                "No reference to these columns was found in the analyzed model and reports.",
+                "Unused columns increase model size and refresh time (especially high-cardinality text columns).",
+                "Confirm with lineage/usage metrics, then remove them in Power Query.",
+                "Search other reports connected to the published model and RLS role filters before removing.",
+                line=t.line))
     return out
 
 
@@ -2145,7 +2258,9 @@ class TmdlParser:
             return ("partition", ptable)
         if kw == "hierarchy" and ptable is not None:
             ptable.hierarchies.append(name)
-            return None
+            return ("hierarchy", ptable)
+        if kw == "level" and parent and isinstance(parent.obj, tuple) and parent.obj[0] == "hierarchy":
+            return ("level", parent.obj[1])
         if kw == "calculationgroup" and ptable is not None:
             ptable.is_calculation_group = True
             return None
@@ -2187,8 +2302,14 @@ class TmdlParser:
         elif isinstance(obj, Table):
             if key == "ishidden":
                 obj.is_hidden = truthy
+        elif isinstance(obj, tuple) and obj and obj[0] == "level" and key == "column":
+            colname, _ = read_name(value, 0)
+            if colname and colname not in obj[1].hierarchy_columns:
+                obj[1].hierarchy_columns.append(colname)
         elif isinstance(obj, Column):
-            if key == "datatype":
+            if key == "sortbycolumn":
+                obj.sort_by = read_name(value, 0)[0]
+            elif key == "datatype":
                 obj.data_type = val.lower()
             elif key == "ishidden":
                 obj.is_hidden = truthy
@@ -2206,6 +2327,8 @@ class TmdlParser:
         obj = parent.obj
         if isinstance(obj, tuple) and obj and obj[0] == "partition" and key == "source":
             table = obj[1]
+            if table.is_calculated:
+                table.calc_source = expr
             for src in detect_m_sources(expr):
                 if src not in table.data_sources:
                     table.data_sources.append(src)
@@ -2252,6 +2375,7 @@ def parse_bim(data: dict[str, Any], path: str) -> tuple[list[Table], list[Relati
                 table=tbl.name, name=str(c["name"]), data_type=(c.get("dataType") or None),
                 is_hidden=bool(c.get("isHidden", False)), is_calculated=calc,
                 expression=_join_expr(c.get("expression")) if calc else None, path=path,
+                sort_by=c.get("sortByColumn"),
             ))
         for m in t.get("measures", []) or []:
             if not isinstance(m, dict) or "name" not in m:
@@ -2264,12 +2388,16 @@ def parse_bim(data: dict[str, Any], path: str) -> tuple[list[Table], list[Relati
         for h in t.get("hierarchies", []) or []:
             if isinstance(h, dict) and "name" in h:
                 tbl.hierarchies.append(str(h["name"]))
+                for lv in h.get("levels", []) or []:
+                    if isinstance(lv, dict) and lv.get("column"):
+                        tbl.hierarchy_columns.append(str(lv["column"]))
         for p in t.get("partitions", []) or []:
             src = p.get("source", {}) if isinstance(p, dict) else {}
             kind = str(src.get("type", "unknown")).lower()
             tbl.partition_kinds.append(kind)
             if kind == "calculated":
                 tbl.is_calculated = True
+                tbl.calc_source = _join_expr(src.get("expression"))
             for s in detect_m_sources(_join_expr(src.get("expression"))):
                 if s not in tbl.data_sources:
                     tbl.data_sources.append(s)
@@ -2355,9 +2483,9 @@ def load_semantic_model(root: Path, folder: Path, max_bytes: int = DEFAULT_MAX_F
 # módulo de origem: pbip_forensics.discovery.detector
 # ----------------------------------------------------------------------
 def discover(path: str | Path, max_bytes: int = DEFAULT_MAX_FILE_BYTES,
-             max_files: int = DEFAULT_MAX_FILES) -> Project:
+             max_files: int = DEFAULT_MAX_FILES, exclude_dirs: set[str] | None = None) -> Project:
     root = resolve_root(path)
-    files, skipped = safe_walk(root, max_files)
+    files, skipped = safe_walk(root, max_files, {d.lower() for d in exclude_dirs or set()})
     project = Project(root=root.name, skipped=skipped)
     report_dirs: set[Path] = set()
     model_dirs: set[Path] = set()

@@ -275,7 +275,9 @@ class TmdlParser:
             return ("partition", ptable)
         if kw == "hierarchy" and ptable is not None:
             ptable.hierarchies.append(name)
-            return None
+            return ("hierarchy", ptable)
+        if kw == "level" and parent and isinstance(parent.obj, tuple) and parent.obj[0] == "hierarchy":
+            return ("level", parent.obj[1])
         if kw == "calculationgroup" and ptable is not None:
             ptable.is_calculation_group = True
             return None
@@ -317,8 +319,14 @@ class TmdlParser:
         elif isinstance(obj, Table):
             if key == "ishidden":
                 obj.is_hidden = truthy
+        elif isinstance(obj, tuple) and obj and obj[0] == "level" and key == "column":
+            colname, _ = read_name(value, 0)
+            if colname and colname not in obj[1].hierarchy_columns:
+                obj[1].hierarchy_columns.append(colname)
         elif isinstance(obj, Column):
-            if key == "datatype":
+            if key == "sortbycolumn":
+                obj.sort_by = read_name(value, 0)[0]
+            elif key == "datatype":
                 obj.data_type = val.lower()
             elif key == "ishidden":
                 obj.is_hidden = truthy
@@ -336,6 +344,8 @@ class TmdlParser:
         obj = parent.obj
         if isinstance(obj, tuple) and obj and obj[0] == "partition" and key == "source":
             table = obj[1]
+            if table.is_calculated:
+                table.calc_source = expr
             for src in detect_m_sources(expr):
                 if src not in table.data_sources:
                     table.data_sources.append(src)

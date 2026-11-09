@@ -1,55 +1,112 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Power BI PBIP Forensics — Audit Report</title><style>body{font-family:Segoe UI,Arial,sans-serif;margin:2rem auto;max-width:1200px;padding:0 1rem;color:#1b1b1b}
-table{border-collapse:collapse;width:100%;margin:.5rem 0 1rem;font-size:.9rem}th,td{border:1px solid #ccc;
-padding:4px 6px;text-align:left;vertical-align:top}th{background:#f2f2f2}pre{background:#f7f7f7;padding:.6rem;
-overflow:auto;white-space:pre-wrap}h2{border-bottom:2px solid #333;padding-bottom:.2rem;margin-top:2rem}
-code{background:#f0f0f0;padding:0 3px}</style></head><body>
-<h1>Power BI PBIP Forensics — Audit Report</h1>
-<p>Project: <strong>synthetic_project -&gt; synthetic_project_v2</strong> · Tool powerbi-pbip-forensics 1.0.0 · Generated (UTC): </p>
-<h2>Executive Summary</h2>
-<p>0 findings produced by this command (full rule set runs with <code>audit</code>).</p>
-<p>Inventory: 0 report(s), 0 page(s), 0 visual(s), 0 model(s), 0 table(s), 0 measure(s), 0 relationship(s).</p>
-<h2>Project Inventory</h2>
-<p><em>(empty)</em></p>
-<h2>Audit Scope</h2>
-<ul><li>Project folder: <code>synthetic_project -&gt; synthetic_project_v2</code> (read-only: True)</li><li>Modules: change-impact</li><li>Performance log: not provided</li><li>Skipped items (security/scope): 0</li></ul>
-<h2>Overall Findings</h2>
-<p>No findings in this section.</p>
-<h2>Severity Breakdown</h2>
-<p><em>(empty)</em></p>
-<p><em>(empty)</em></p>
-<h2>Relationship Analysis</h2>
-<p>No findings in this section.</p>
-<h2>DAX Analysis</h2>
-<p>No findings in this section.</p>
-<h2>Visual Dependencies</h2>
-<p>No findings in this section.</p>
-<p>Dependency map: 0 bindings (Page → Visual → Field → Table).</p>
-<p><em>(empty)</em></p>
-<h2>Performance Analysis</h2>
-<p>No Performance Analyzer log was provided. No runtime measurements are available; the items below are static risks that should be measured before acting.</p>
-<p>No findings in this section.</p>
-<h2>Change Impact</h2>
-<p>Summary: added 1, removed 3, modified 2, modified-formatting 1. Textual/structural changes indicate where to test; they are not proof of a functional regression.</p>
-<table><thead><tr><th>Type</th><th>Object</th><th>Change</th><th>Details</th></tr></thead><tbody><tr><td>measure</td><td>Bonus</td><td>removed</td><td></td></tr><tr><td>measure</td><td>Unused Helper</td><td>removed</td><td></td></tr><tr><td>column</td><td>&#x27;Product&#x27;[Colour]</td><td>added</td><td></td></tr><tr><td>measure</td><td>Total Quantity</td><td>modified-formatting</td><td>Whitespace/comment-only change; tokens identical</td></tr><tr><td>measure</td><td>Total Revenue</td><td>modified</td><td>DAX expression changed (token-level)</td></tr><tr><td>relationship</td><td>&#x27;Account&#x27;[CustomerKey] -&gt; &#x27;Customer&#x27;[CustomerKey]</td><td>modified</td><td>isActive: False -&gt; True</td></tr><tr><td>visual</td><td>ContosoRetail/details01/v_target</td><td>removed</td><td></td></tr></tbody></table>
-<h3>measure Bonus (removed)</h3>
-<p>Measure &#x27;Bonus&#x27; was removed. It is still referenced by visuals in the current version: these bindings are broken (confirmed).</p>
-<ul><li>Visual: ContosoRetail / Overview / Bonus by Customer (tableEx)</li></ul>
-<h3>measure Unused Helper (removed)</h3>
-<p>Measure &#x27;Unused Helper&#x27; was removed. No visual in the current version references it.</p>
-<ul><li>No dependents found.</li></ul>
-<h3>measure Total Revenue (modified)</h3>
-<p>Measure &#x27;Total Revenue&#x27; modified. Visuals referencing it (directly or via dependent measures) may require regression testing.</p>
-<ul><li>Dependent measure: Broken UseRel</li><li>Dependent measure: Customer&#x27;s Rank</li><li>Dependent measure: Formatted Label</li><li>Dependent measure: High Value Revenue</li><li>Dependent measure: Margin %</li><li>Dependent measure: Revenue % of All Customers</li><li>Dependent measure: Revenue (R$) – Net</li><li>Dependent measure: Revenue All Customers</li><li>Dependent measure: Revenue by Ship Date</li><li>Dependent measure: Revenue LY</li><li>Dependent measure: Revenue Safe</li><li>Dependent measure: Sales Per Row</li><li>Dependent measure: Segment Revenue</li><li>Visual: ContosoRetail / Details / By Colour (barChart)</li><li>Visual: ContosoRetail / Details / Revenue LY vs Ship Date (pivotTable)</li><li>Visual: ContosoRetail / Details / Segment analysis (tableEx)</li><li>Visual: ContosoRetail / Overview / Revenue by Category (clusteredColumnChart)</li><li>Visual: ContosoRetail / Overview / Total Revenue (card)</li></ul>
-<h3>relationship &#x27;Account&#x27;[CustomerKey] -&gt; &#x27;Customer&#x27;[CustomerKey] (modified)</h3>
-<p>Relationship change alters filter propagation between account, customer. Measures aggregating these tables and visuals using them may require regression testing.</p>
-<ul><li>Dependent measure: Avg Customer Spend</li><li>Dependent measure: Segment Revenue</li><li>Dependent measure: Total Balance</li><li>Visual: ContosoRetail / Details / Avg Spend (card)</li><li>Visual: ContosoRetail / Details / Segment analysis (tableEx)</li><li>Visual: ContosoRetail / Overview / Bonus by Customer (tableEx)</li><li>Visual: ContosoRetail / Overview / Customer (slicer)</li><li>Visual: ContosoRetail / Overview / Customer Accounts (tableEx)</li></ul>
-<h2>Root Cause Hypotheses</h2>
-<p>No investigation was requested. Use the <code>investigate</code> command for question-driven analysis.</p>
-<h2>Recommended Actions</h2>
-<p>No findings in this section.</p>
-<h2>Limitations</h2>
-<ul></ul>
-<h2>Evidence Appendix</h2>
-</body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PBIP Forensics · synthetic_project -&gt; synthetic_project_v2</title><style>
+:root{--bg:#f5f7fb;--panel:#fff;--ink:#14213d;--muted:#5b6478;--line:#e3e7ef;--brand:#0b5ed7;--brand2:#f2a900;
+--crit:#7a0b2e;--high:#d1242f;--med:#d97706;--low:#2563eb;--info:#64748b;--ok:#15803d;--chip:#eef2f8;
+--shadow:0 1px 2px rgba(16,24,40,.06),0 2px 8px rgba(16,24,40,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--panel:#161b22;--ink:#e6edf3;--muted:#9aa4b2;
+--line:#2a313c;--chip:#1f2630;--shadow:none}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+a{color:var(--brand)}code,pre{font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:12.5px}
+header.top{background:linear-gradient(120deg,#0b1f44,#0b5ed7);color:#fff;padding:22px 28px 18px}
+.top .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.top h1{margin:0;font-size:22px}
+.top .sub{opacity:.85;font-size:13px}.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.meta span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;
+padding:3px 10px;font-size:12px}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);
+display:flex;gap:2px;overflow-x:auto;padding:0 18px;box-shadow:var(--shadow)}
+nav.tabs a{padding:11px 12px;text-decoration:none;color:var(--muted);white-space:nowrap;font-weight:600;
+border-bottom:3px solid transparent}nav.tabs a:hover{color:var(--ink);border-color:var(--brand2)}
+main{max-width:1280px;margin:0 auto;padding:22px 20px 60px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+margin-bottom:18px;box-shadow:var(--shadow);scroll-margin-top:56px}
+h2{font-size:17px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h2 .n{background:var(--chip);color:var(--muted);border-radius:999px;font-size:12px;padding:1px 9px}
+h3{font-size:14px;margin:16px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px;border-top:4px solid var(--info)}
+.kpi b{display:block;font-size:24px;line-height:1.2}.kpi span{color:var(--muted);font-size:12px;text-transform:uppercase;
+letter-spacing:.03em}
+.kpi.CRITICAL{border-top-color:var(--crit)}.kpi.HIGH{border-top-color:var(--high)}.kpi.MEDIUM{border-top-color:var(--med)}
+.kpi.LOW{border-top-color:var(--low)}.kpi.total{border-top-color:var(--brand)}
+.stack{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--chip);margin:14px 0 6px}
+.stack i{display:block}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.bg-CRITICAL{background:var(--crit)}.bg-HIGH{background:var(--high)}.bg-MEDIUM{background:var(--med)}
+.bg-LOW{background:var(--low)}.bg-INFO{background:var(--info)}
+.inv{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
+.inv div{background:var(--chip);border-radius:8px;padding:8px 10px}.inv b{display:block;font-size:18px}
+.inv span{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700;color:#fff;
+letter-spacing:.02em;white-space:nowrap}
+.st{display:inline-block;border-radius:6px;padding:0 7px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
+.st.confirmed{border-color:var(--ok);color:var(--ok)}.st.inconclusive{border-style:dashed}
+.rule{font-family:Consolas,Menlo,monospace;font-size:12px;color:var(--muted)}
+.prio{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.prio .card{border:1px solid var(--line);border-left:4px solid var(--high);border-radius:10px;padding:10px 12px}
+.prio .card.CRITICAL{border-left-color:var(--crit)}.prio .card p{margin:6px 0 0;color:var(--muted);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:7px 9px;
+border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600;background:var(--chip);
+position:sticky;top:44px}tbody tr:hover{background:var(--chip)}
+.scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:8px}.scroll th{top:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.toolbar input,.toolbar select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;
+padding:7px 10px;font:inherit}.toolbar input{flex:1 1 260px}
+.chipbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 11px;
+cursor:pointer;font:inherit;font-size:12px;font-weight:600}.chipbtn[aria-pressed=false]{opacity:.45}
+.btn{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:8px;padding:6px 11px;cursor:pointer;
+font:inherit;font-size:12px}.count{color:var(--muted);font-size:12px;margin-left:auto}
+.finding{border:1px solid var(--line);border-left:4px solid var(--info);border-radius:10px;margin-bottom:8px;
+background:var(--panel)}.finding.CRITICAL{border-left-color:var(--crit)}.finding.HIGH{border-left-color:var(--high)}
+.finding.MEDIUM{border-left-color:var(--med)}.finding.LOW{border-left-color:var(--low)}
+.finding summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.finding summary::-webkit-details-marker{display:none}.finding summary .t{font-weight:600;flex:1 1 420px}
+.finding .body{padding:0 14px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.finding .body div{background:var(--chip);border-radius:8px;padding:8px 10px}.finding .body h4{margin:0 0 3px;font-size:11px;
+text-transform:uppercase;color:var(--muted);letter-spacing:.04em}.finding .body .wide{grid-column:1/-1}
+.finding ul{margin:0;padding-left:18px}.src{color:var(--muted);font-size:12px;word-break:break-all}
+.perfrow{display:grid;grid-template-columns:minmax(160px,260px) 1fr 80px;gap:10px;align-items:center;margin:6px 0}
+.perfbar{display:flex;height:14px;border-radius:4px;overflow:hidden;background:var(--chip)}
+.p-dax{background:#0b5ed7}.p-dq{background:#7c3aed}.p-vis{background:#f2a900}.p-oth{background:#94a3b8}
+.hyp{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
+.conf{font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;color:#fff}.conf.high{background:var(--high)}
+.conf.medium{background:var(--med)}.conf.low{background:var(--info)}
+pre{background:var(--chip);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-word;margin:6px 0}
+.notice{background:var(--chip);border-left:4px solid var(--brand2);border-radius:8px;padding:10px 12px;color:var(--muted)}
+ol.actions li{margin:6px 0}.muted{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--high);font-weight:600}
+.gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.gauge{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.gauge svg{display:block;margin:0 auto}.gauge text{fill:var(--ink)}
+.gauge .lbl{font-weight:600;margin-top:6px}.gauge .g{font-size:12px;color:var(--muted)}
+.gauge.main{background:linear-gradient(180deg,var(--chip),transparent)}
+.g-good{stroke:#15803d}.g-attention{stroke:#d97706}.g-critical{stroke:#d1242f}.g-not_measured{stroke:#94a3b8}
+.story{font-size:15px;line-height:1.6}.story li{margin:6px 0}
+.wins{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.win{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.win h4{margin:4px 0 6px;font-size:14px}
+.eff{font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--chip);color:var(--ink)}
+.eff.quick{background:#dcfce7;color:#166534}.eff.medium{background:#fef3c7;color:#92400e}.eff.structural{background:#fee2e2;color:#991b1b}
+.diagram{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.diagram text{font-family:"Segoe UI",system-ui,sans-serif;fill:var(--ink)}
+.pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.pg{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.pg h4{margin:0 0 6px}
+.pg .nums{display:flex;flex-wrap:wrap;gap:6px}.pg .nums span{background:var(--chip);border-radius:6px;padding:1px 7px;font-size:12px}
+.hbar{display:grid;grid-template-columns:minmax(120px,240px) 1fr 40px;gap:8px;align-items:center;margin:4px 0;font-size:13px}
+.hbar div{height:10px;border-radius:4px;background:var(--brand)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(480px,100%),1fr));gap:16px}.two>div{min-width:0}.two td:first-child{min-width:170px}
+@media print{nav.tabs,.toolbar{display:none}body{background:#fff}section{box-shadow:none;break-inside:avoid-page}
+th{position:static}.scroll{max-height:none;overflow:visible}}
+</style></head><body><header class="top"><div class="row"><svg viewBox="0 0 64 64" width="40" height="40" aria-hidden="true"><path d="M32 3 7 12v18c0 15 10.5 26.5 25 31 14.5-4.5 25-16 25-31V12z" fill="var(--brand)"/><rect x="17" y="18" width="30" height="22" rx="3" fill="#fff"/><rect x="21" y="30" width="4" height="7" fill="#F2A900"/><rect x="27" y="26" width="4" height="11" fill="#F2A900"/><rect x="33" y="22" width="4" height="15" fill="#F2A900"/><circle cx="41" cy="41" r="7" fill="none" stroke="#0B1F44" stroke-width="3"/><path d="m46 46 6 6" stroke="#F2A900" stroke-width="4" stroke-linecap="round"/></svg><div><h1>Power BI PBIP Forensics</h1><div class="sub">Audit Report · <b>synthetic_project -&gt; synthetic_project_v2</b></div></div></div><div class="meta"><span>v1.0.0</span><span>Generated (UTC): -</span><span>Read-only analysis</span><span>change-impact</span></div></header><nav class='tabs'><a href="#overview">Overview</a><a href="#summary">Summary</a><a href="#rules">Rules overview</a><a href="#findings">Findings</a><a href="#relationships">Model map</a><a href="#dax">Measures</a><a href="#visuals">Pages</a><a href="#performance">Performance</a><a href="#impact">Change impact</a><a href="#hypotheses">Root cause</a><a href="#actions">Actions</a><a href="#limitations">Limitations</a><a href="#inventory">Inventory</a></nav><main><section id="overview"><h2>Overview</h2><div class="gauges"><div class="gauge main"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Health score 100"><circle cx="48" cy="48" r="34" fill="none" stroke="var(--chip)" stroke-width="10"/><circle class="g-good" cx="48" cy="48" r="34" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6 213.6" transform="rotate(-90 48 48)"/><text x="48" y="55" text-anchor="middle" font-size="22" font-weight="700">100</text></svg><div class="lbl">Health score</div><div class="g">Good</div></div><div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Data model 100"><circle cx="48" cy="48" r="34" fill="none" stroke="var(--chip)" stroke-width="10"/><circle class="g-good" cx="48" cy="48" r="34" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6 213.6" transform="rotate(-90 48 48)"/><text x="48" y="55" text-anchor="middle" font-size="22" font-weight="700">100</text></svg><div class="lbl">Data model</div><div class="g">Good</div></div><div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="DAX measures 100"><circle cx="48" cy="48" r="34" fill="none" stroke="var(--chip)" stroke-width="10"/><circle class="g-good" cx="48" cy="48" r="34" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6 213.6" transform="rotate(-90 48 48)"/><text x="48" y="55" text-anchor="middle" font-size="22" font-weight="700">100</text></svg><div class="lbl">DAX measures</div><div class="g">Good</div></div><div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Report &amp; visuals 100"><circle cx="48" cy="48" r="34" fill="none" stroke="var(--chip)" stroke-width="10"/><circle class="g-good" cx="48" cy="48" r="34" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6 213.6" transform="rotate(-90 48 48)"/><text x="48" y="55" text-anchor="middle" font-size="22" font-weight="700">100</text></svg><div class="lbl">Report &amp; visuals</div><div class="g">Good</div></div><div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Performance –"><circle cx="48" cy="48" r="34" fill="none" stroke="var(--chip)" stroke-width="10"/><circle class="g-not_measured" cx="48" cy="48" r="34" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="0.0 213.6" transform="rotate(-90 48 48)"/><text x="48" y="55" text-anchor="middle" font-size="22" font-weight="700">–</text></svg><div class="lbl">Performance</div><div class="g">Not measured</div></div><div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Project files 100"><circle cx="48" cy="48" r="34" fill="none" stroke="var(--chip)" stroke-width="10"/><circle class="g-good" cx="48" cy="48" r="34" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6 213.6" transform="rotate(-90 48 48)"/><text x="48" y="55" text-anchor="middle" font-size="22" font-weight="700">100</text></svg><div class="lbl">Project files</div><div class="g">Good</div></div></div><p class="muted" style="font-size:12px">Indicative score from the findings (not a quality certificate). Formula: score = 100 × exp(−Σ weight(severity) × factor(status) / 40); weights CRITICAL 20, HIGH 8, MEDIUM 3, LOW 1, INFO 0; factors confirmed 1, potential 0.5, inconclusive 0.25.</p><h3>In plain words</h3><ul class="story"><li>No Performance Analyzer log was provided, so slowness was not measured; there are 0 DAX patterns worth measuring.</li><li>No serious structural problem was found in the files.</li></ul></section><section id="summary"><h2>Summary</h2><div class="kpis"><div class="kpi total"><b>0</b><span>Findings</span></div><div class="kpi CRITICAL"><b>0</b><span>CRITICAL</span></div><div class="kpi HIGH"><b>0</b><span>HIGH</span></div><div class="kpi MEDIUM"><b>0</b><span>MEDIUM</span></div><div class="kpi LOW"><b>0</b><span>LOW</span></div><div class="kpi INFO"><b>0</b><span>INFO</span></div></div><div class="stack"></div><div class="legend"><span><i class="dot bg-CRITICAL"></i>CRITICAL 0</span> <span><i class="dot bg-HIGH"></i>HIGH 0</span> <span><i class="dot bg-MEDIUM"></i>MEDIUM 0</span> <span><i class="dot bg-LOW"></i>LOW 0</span> <span><i class="dot bg-INFO"></i>INFO 0</span><span>· 0 confirmed · 0 potential · 0 inconclusive</span></div><div class="inv"></div></section><section id="rules"><h2>Rules overview <span class="n">0</span></h2><p class="muted">Nothing to show in this section.</p></section><section id="findings"><h2>Findings <span class="n">0</span></h2><div class="toolbar"><input id="q" type="search" placeholder="Search title, object, path or evidence…" aria-label="search"><button class="chipbtn" type="button" data-sev="CRITICAL" aria-pressed="true"><i class="dot bg-CRITICAL"></i>CRITICAL</button><button class="chipbtn" type="button" data-sev="HIGH" aria-pressed="true"><i class="dot bg-HIGH"></i>HIGH</button><button class="chipbtn" type="button" data-sev="MEDIUM" aria-pressed="true"><i class="dot bg-MEDIUM"></i>MEDIUM</button><button class="chipbtn" type="button" data-sev="LOW" aria-pressed="true"><i class="dot bg-LOW"></i>LOW</button><button class="chipbtn" type="button" data-sev="INFO" aria-pressed="true"><i class="dot bg-INFO"></i>INFO</button><select id="fst"><option value="">All statuses</option><option value="confirmed">confirmed</option><option value="potential">potential</option><option value="inconclusive">inconclusive</option></select><select id="fcat"><option value="">All categories</option></select><select id="frule"><option value="">All rules</option></select><button class="btn" id="exp" type="button">Expand all</button><button class="btn" id="col" type="button">Collapse all</button><span class="count">Showing <b id="cnt">0</b> of 0</span></div><p class="muted">Nothing to show in this section.</p></section><section id="relationships"><h2>Model map</h2></section><section id="dax"><h2>Measures</h2><p class="muted">Nothing to show in this section.</p></section><section id="visuals"><h2>Visuals</h2><p class="muted">0 bindings</p></section><section id="performance"><h2>Performance</h2><p class="notice">No Performance Analyzer log was provided. No runtime measurements are available; static performance risks are listed in Findings (category “DAX performance”).</p></section><section id="impact"><h2>Change impact</h2><p>added: <b>1</b> · removed: <b>3</b> · modified: <b>2</b> · modified-formatting: <b>1</b></p><p class='notice'>Textual/structural changes indicate where to test; they are not proof of a functional regression.</p><div class="scroll"><table><thead><tr><th>Type</th><th>Object</th><th>Change</th><th>Details</th></tr></thead><tbody><tr><td>measure</td><td>Bonus</td><td>removed</td><td></td></tr><tr><td>measure</td><td>Unused Helper</td><td>removed</td><td></td></tr><tr><td>column</td><td>&#x27;Product&#x27;[Colour]</td><td>added</td><td></td></tr><tr><td>measure</td><td>Total Quantity</td><td>modified-formatting</td><td>Whitespace/comment-only change; tokens identical</td></tr><tr><td>measure</td><td>Total Revenue</td><td>modified</td><td>DAX expression changed (token-level)</td></tr><tr><td>relationship</td><td>&#x27;Account&#x27;[CustomerKey] -&gt; &#x27;Customer&#x27;[CustomerKey]</td><td>modified</td><td>isActive: False -&gt; True</td></tr><tr><td>visual</td><td>ContosoRetail/details01/v_target</td><td>removed</td><td></td></tr></tbody></table></div><div class="hyp"><b>measure Bonus (removed)</b><p>Measure &#x27;Bonus&#x27; was removed. It is still referenced by visuals in the current version: these bindings are broken (confirmed).</p><ul><li>ContosoRetail / Overview / Bonus by Customer (tableEx)</li></ul></div><div class="hyp"><b>measure Unused Helper (removed)</b><p>Measure &#x27;Unused Helper&#x27; was removed. No visual in the current version references it.</p></div><div class="hyp"><b>measure Total Revenue (modified)</b><p>Measure &#x27;Total Revenue&#x27; modified. Visuals referencing it (directly or via dependent measures) may require regression testing.</p><p class="muted">Dependent measures: Broken UseRel, Customer&#x27;s Rank, Formatted Label, High Value Revenue, Margin %, Revenue % of All Customers, Revenue (R$) – Net, Revenue All Customers, Revenue by Ship Date, Revenue LY, Revenue Safe, Sales Per Row, Segment Revenue</p><ul><li>ContosoRetail / Details / By Colour (barChart)</li><li>ContosoRetail / Details / Revenue LY vs Ship Date (pivotTable)</li><li>ContosoRetail / Details / Segment analysis (tableEx)</li><li>ContosoRetail / Overview / Revenue by Category (clusteredColumnChart)</li><li>ContosoRetail / Overview / Total Revenue (card)</li></ul></div><div class="hyp"><b>relationship &#x27;Account&#x27;[CustomerKey] -&gt; &#x27;Customer&#x27;[CustomerKey] (modified)</b><p>Relationship change alters filter propagation between account, customer. Measures aggregating these tables and visuals using them may require regression testing.</p><p class="muted">Dependent measures: Avg Customer Spend, Total Balance</p><ul><li>ContosoRetail / Details / Avg Spend (card)</li><li>ContosoRetail / Details / Segment analysis (tableEx)</li><li>ContosoRetail / Overview / Bonus by Customer (tableEx)</li><li>ContosoRetail / Overview / Customer (slicer)</li><li>ContosoRetail / Overview / Customer Accounts (tableEx)</li></ul></div></section><section id="hypotheses"><h2>Root cause</h2><p class="notice">No investigation was run. Use investigate (CLI) or pbip_visual_deps.py --from-table … to get ranked root-cause hypotheses.</p></section><section id="actions"><h2>Actions</h2><p class="muted">Nothing to show in this section.</p></section><section id="limitations"><h2>Limitations</h2><ul></ul></section><section id="inventory"><h2>Inventory</h2><p class="muted">Nothing to show in this section.</p></section></main><footer>Static analysis: DAX is not executed and no data values are read. Findings marked potential require verification in Power BI.</footer><script>
+(function(){
+var q=document.getElementById('q'),st=document.getElementById('fst'),ca=document.getElementById('fcat'),
+ru=document.getElementById('frule'),cnt=document.getElementById('cnt'),items=[].slice.call(document.querySelectorAll('.finding')),
+sev={};[].forEach.call(document.querySelectorAll('.chipbtn[data-sev]'),function(b){sev[b.dataset.sev]=true;
+b.addEventListener('click',function(){sev[b.dataset.sev]=!sev[b.dataset.sev];b.setAttribute('aria-pressed',sev[b.dataset.sev]);apply();});});
+function apply(){var t=(q.value||'').toLowerCase(),n=0;items.forEach(function(e){var ok=sev[e.dataset.sev]&&
+(!st.value||e.dataset.status===st.value)&&(!ca.value||e.dataset.cat===ca.value)&&(!ru.value||e.dataset.rule===ru.value)&&
+(!t||e.dataset.text.indexOf(t)>=0);e.style.display=ok?'':'none';if(ok)n++;});cnt.textContent=n;}
+[q,st,ca,ru].forEach(function(e){e.addEventListener('input',apply);});
+document.getElementById('exp').addEventListener('click',function(){items.forEach(function(e){if(e.style.display!=='none')e.open=true;});});
+document.getElementById('col').addEventListener('click',function(){items.forEach(function(e){e.open=false;});});
+[].forEach.call(document.querySelectorAll('[data-rulefilter]'),function(a){a.addEventListener('click',function(){
+ru.value=a.dataset.rulefilter;apply();});});
+window.addEventListener('beforeprint',function(){items.forEach(function(e){e.open=true;});});apply();})();
+</script></body></html>

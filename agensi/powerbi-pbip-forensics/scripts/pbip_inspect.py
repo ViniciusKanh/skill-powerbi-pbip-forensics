@@ -68,6 +68,7 @@ class Column:
     expression: str | None = None
     path: str = ""
     line: int | None = None
+    sort_by: str | None = None
 
 
 @dataclass
@@ -119,6 +120,8 @@ class Table:
     columns: list[Column] = field(default_factory=list)
     measures: list[Measure] = field(default_factory=list)
     hierarchies: list[str] = field(default_factory=list)
+    hierarchy_columns: list[str] = field(default_factory=list)
+    calc_source: str | None = None  # DAX da tabela calculada (apenas para análise de referências)
     partition_kinds: list[str] = field(default_factory=list)
     data_sources: list[str] = field(default_factory=list)
 
@@ -720,6 +723,9 @@ def normalized_tokens(expression: str) -> list[str]:
 # Funções que criam colunas implícitas ([Value], [Date]...) em tabelas temporárias.
 _IMPLICIT_COLUMN_FUNCS = {"GENERATESERIES", "CALENDAR", "CALENDARAUTO", "DATATABLE", "ROW"}
 _MODIFIER_FUNCS = FILTER_REMOVERS | {"USERELATIONSHIP", "CROSSFILTER", "KEEPFILTERS", "TREATAS"}
+# Funções que apenas consultam/inspecionam valores (não definem a tabela agregada).
+_PROBE_FUNCS = {"SELECTEDVALUE", "HASONEVALUE", "HASONEFILTER", "ISFILTERED", "ISCROSSFILTERED", "ISINSCOPE",
+                "LOOKUPVALUE", "RELATED", "FIRSTNONBLANK", "LASTNONBLANK"}
 
 
 @dataclass
@@ -844,7 +850,7 @@ class SemanticIndex:
         for call in info.calls:
             if call.name in CALC_FUNCS:
                 ranges.extend(call.args[1:])
-            elif call.name in _MODIFIER_FUNCS and call.args:
+            elif (call.name in _MODIFIER_FUNCS or call.name in _PROBE_FUNCS) and call.args:
                 ranges.append((call.args[0][0], call.args[-1][1]))
         return ranges
 
@@ -942,6 +948,19 @@ def build_indexes(project: Project) -> dict[str, SemanticIndex]:
 # ----------------------------------------------------------------------
 # módulo de origem: pbip_forensics.analyzers.inventory
 # ----------------------------------------------------------------------
+def _complexity(ea: Any) -> dict[str, int]:
+    info = ea.info
+    nest = 0
+    for i in range(len(info.calls)):
+        nest = max(nest, len(info.ancestors(i)) + 1)
+    iters = sum(1 for c in info.calls if c.name in ITERATORS)
+    calcs = sum(1 for c in info.calls if c.name in CALC_FUNCS)
+    lines = ea.expression.count("\n") + 1 if ea.expression else 0
+    score = len(info.calls) + 2 * iters + 2 * calcs + 3 * nest + lines // 5 + len(ea.measure_deps)
+    return {"tokens": len(info.tokens), "calls": len(info.calls), "iterators": iters, "calculates": calcs,
+            "max_nesting": nest, "lines": lines, "score": score}
+
+
 def build_inventory(project: Project, indexes: dict[str, SemanticIndex]) -> dict[str, Any]:
     models = []
     for m in project.models:
@@ -952,6 +971,7 @@ def build_inventory(project: Project, indexes: dict[str, SemanticIndex]) -> dict
                 "name": t.name, "path": t.path, "line": t.line, "role": idx.graph.table_role(t.name) if idx else None,
                 "is_hidden": t.is_hidden, "is_calculated": t.is_calculated,
                 "is_calculation_group": t.is_calculation_group, "columns": [c.name for c in t.columns],
+                "hidden_columns": [c.name for c in t.columns if c.is_hidden],
                 "calculated_columns": [c.name for c in t.columns if c.is_calculated],
                 "measures": [x.name for x in t.measures], "hierarchies": t.hierarchies,
                 "partition_kinds": t.partition_kinds, "data_sources": t.data_sources})
@@ -959,6 +979,7 @@ def build_inventory(project: Project, indexes: dict[str, SemanticIndex]) -> dict
         for x in m.all_measures():
             ea = idx.analyses.get(x.name.lower()) if idx else None
             measures.append({"table": x.table, "name": x.name, "path": x.path, "line": x.line,
+                             "format_string": x.format_string, "complexity": _complexity(ea) if ea else None,
                              "display_folder": x.display_folder, "is_hidden": x.is_hidden,
                              "measure_dependencies": ea.measure_deps if ea else [],
                              "column_references": [f"'{a}'[{b}]" for a, b in ea.column_refs] if ea else [],
@@ -1246,7 +1267,9 @@ class TmdlParser:
             return ("partition", ptable)
         if kw == "hierarchy" and ptable is not None:
             ptable.hierarchies.append(name)
-            return None
+            return ("hierarchy", ptable)
+        if kw == "level" and parent and isinstance(parent.obj, tuple) and parent.obj[0] == "hierarchy":
+            return ("level", parent.obj[1])
         if kw == "calculationgroup" and ptable is not None:
             ptable.is_calculation_group = True
             return None
@@ -1288,8 +1311,14 @@ class TmdlParser:
         elif isinstance(obj, Table):
             if key == "ishidden":
                 obj.is_hidden = truthy
+        elif isinstance(obj, tuple) and obj and obj[0] == "level" and key == "column":
+            colname, _ = read_name(value, 0)
+            if colname and colname not in obj[1].hierarchy_columns:
+                obj[1].hierarchy_columns.append(colname)
         elif isinstance(obj, Column):
-            if key == "datatype":
+            if key == "sortbycolumn":
+                obj.sort_by = read_name(value, 0)[0]
+            elif key == "datatype":
                 obj.data_type = val.lower()
             elif key == "ishidden":
                 obj.is_hidden = truthy
@@ -1307,6 +1336,8 @@ class TmdlParser:
         obj = parent.obj
         if isinstance(obj, tuple) and obj and obj[0] == "partition" and key == "source":
             table = obj[1]
+            if table.is_calculated:
+                table.calc_source = expr
             for src in detect_m_sources(expr):
                 if src not in table.data_sources:
                     table.data_sources.append(src)
@@ -1388,7 +1419,8 @@ def rel(root: Path, path: Path) -> str:
         return path.name
 
 
-def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path], list[str]]:
+def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES,
+              exclude_dirs: set[str] | None = None) -> tuple[list[Path], list[str]]:
     files: list[Path] = []
     skipped: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
@@ -1397,6 +1429,9 @@ def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path
         for d in sorted(dirnames):
             full = current / d
             if d in SKIP_DIRS:
+                continue
+            if exclude_dirs and d.lower() in exclude_dirs:
+                skipped.append(f"excluded-by-option: {rel(root, current)}/{d}")
                 continue
             if full.is_symlink() and not is_within(root, full):
                 skipped.append(f"symlink-outside-scope: {rel(root, current)}/{d}")
@@ -1480,6 +1515,7 @@ def parse_bim(data: dict[str, Any], path: str) -> tuple[list[Table], list[Relati
                 table=tbl.name, name=str(c["name"]), data_type=(c.get("dataType") or None),
                 is_hidden=bool(c.get("isHidden", False)), is_calculated=calc,
                 expression=_join_expr(c.get("expression")) if calc else None, path=path,
+                sort_by=c.get("sortByColumn"),
             ))
         for m in t.get("measures", []) or []:
             if not isinstance(m, dict) or "name" not in m:
@@ -1492,12 +1528,16 @@ def parse_bim(data: dict[str, Any], path: str) -> tuple[list[Table], list[Relati
         for h in t.get("hierarchies", []) or []:
             if isinstance(h, dict) and "name" in h:
                 tbl.hierarchies.append(str(h["name"]))
+                for lv in h.get("levels", []) or []:
+                    if isinstance(lv, dict) and lv.get("column"):
+                        tbl.hierarchy_columns.append(str(lv["column"]))
         for p in t.get("partitions", []) or []:
             src = p.get("source", {}) if isinstance(p, dict) else {}
             kind = str(src.get("type", "unknown")).lower()
             tbl.partition_kinds.append(kind)
             if kind == "calculated":
                 tbl.is_calculated = True
+                tbl.calc_source = _join_expr(src.get("expression"))
             for s in detect_m_sources(_join_expr(src.get("expression"))):
                 if s not in tbl.data_sources:
                     tbl.data_sources.append(s)
@@ -1676,6 +1716,23 @@ def _title(visual: dict[str, Any]) -> str | None:
     return val[1:-1].replace("''", "'") if len(val) >= 2 and val[0] == "'" == val[-1] else val
 
 
+def format_refs(obj: Any, limit: int = 500) -> list[FieldRef]:
+    out: list[FieldRef] = []
+    stack = [obj]
+    while stack and len(out) < limit:
+        cur = stack.pop()
+        if isinstance(cur, dict):
+            if ("Measure" in cur or "Column" in cur) and isinstance(cur.get("Measure", cur.get("Column")), dict):
+                fr = field_from_container(cur, None, "format", "format")
+                if fr is not None and fr.entity and fr.property:
+                    out.append(fr)
+                    continue
+            stack.extend(cur.values())
+        elif isinstance(cur, list):
+            stack.extend(cur)
+    return out
+
+
 def parse_visual_json(data: Any, page: str, path: str) -> Visual:
     if not isinstance(data, dict):
         return Visual(name=Path(path).parent.name, page=page, visual_type="unparsed", path=path,
@@ -1697,6 +1754,11 @@ def parse_visual_json(data: Any, page: str, path: str) -> Visual:
     for srt in (query.get("sortDefinition") or {}).get("sort", []) or []:
         fr = field_from_container((srt or {}).get("field"), None, "sort", "sort")
         if fr is not None:
+            v.fields.append(fr)
+    seen = {(f.kind, f.key()) for f in v.fields}
+    for fr in format_refs([vis.get("objects"), vis.get("visualContainerObjects")]):
+        if (fr.kind, fr.key()) not in seen:
+            seen.add((fr.kind, fr.key()))
             v.fields.append(fr)
     vfilters = _filters(data.get("filterConfig"))
     v.filter_count = len(vfilters)
@@ -1801,7 +1863,7 @@ def load_report(root: Path, folder: Path, max_bytes: int = DEFAULT_MAX_FILE_BYTE
             disp = str(pdata.get("displayName", pname)) if isinstance(pdata, dict) else pname
             page = Page(name=pname, display_name=disp, path=rel(root, pdir))
             if isinstance(pdata, dict):
-                page.filters = _filters(pdata.get("filterConfig"))
+                page.filters = _filters(pdata.get("filterConfig")) + format_refs(pdata.get("objects"))
             vdir = pdir / "visuals"
             for vd in sorted(vdir.iterdir()) if vdir.is_dir() else []:
                 vj = vd / "visual.json"
@@ -1835,9 +1897,9 @@ def load_report(root: Path, folder: Path, max_bytes: int = DEFAULT_MAX_FILE_BYTE
 # módulo de origem: pbip_forensics.discovery.detector
 # ----------------------------------------------------------------------
 def discover(path: str | Path, max_bytes: int = DEFAULT_MAX_FILE_BYTES,
-             max_files: int = DEFAULT_MAX_FILES) -> Project:
+             max_files: int = DEFAULT_MAX_FILES, exclude_dirs: set[str] | None = None) -> Project:
     root = resolve_root(path)
-    files, skipped = safe_walk(root, max_files)
+    files, skipped = safe_walk(root, max_files, {d.lower() for d in exclude_dirs or set()})
     project = Project(root=root.name, skipped=skipped)
     report_dirs: set[Path] = set()
     model_dirs: set[Path] = set()

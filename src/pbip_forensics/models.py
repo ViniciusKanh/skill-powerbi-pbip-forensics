@@ -47,6 +47,7 @@ class Column:
     expression: str | None = None
     path: str = ""
     line: int | None = None
+    sort_by: str | None = None
 
 
 @dataclass
@@ -99,6 +100,8 @@ class Table:
     columns: list[Column] = field(default_factory=list)
     measures: list[Measure] = field(default_factory=list)
     hierarchies: list[str] = field(default_factory=list)
+    hierarchy_columns: list[str] = field(default_factory=list)
+    calc_source: str | None = None  # DAX da tabela calculada (apenas para análise de referências)
     partition_kinds: list[str] = field(default_factory=list)
     data_sources: list[str] = field(default_factory=list)
 

@@ -11,6 +11,7 @@ import argparse
 import contextlib
 import json
 import sys
+import webbrowser
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,7 @@ from pbip_forensics.analyzers.filters import investigate_filter
 from pbip_forensics.analyzers.inventory import build_inventory
 from pbip_forensics.analyzers.performance import parse_performance, performance_findings
 from pbip_forensics.analyzers.semantic import SemanticIndex
+from pbip_forensics.automation import DEFAULT_EXCLUDES, console_summary, run_full
 from pbip_forensics.discovery.detector import discover
 from pbip_forensics.models import SEVERITY_RANK, TOOL_VERSION, ForensicsError, Project, to_jsonable
 from pbip_forensics.reporting.render import render
@@ -193,6 +195,18 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_run(args: argparse.Namespace) -> int:
+    """Auditoria completa em um passo, com relatório HTML e abertura opcional no navegador."""
+    excludes = set() if args.no_default_excludes else set(DEFAULT_EXCLUDES)
+    excludes |= {x.lower() for x in args.exclude or []}
+    doc, files = run_full(args.project, args.performance, args.output, args.lang, excludes,
+                          int(args.max_file_mb * 1024 * 1024), auto_perf=not args.no_auto_performance)
+    print(console_summary(doc, files), file=sys.stderr)
+    if args.open:
+        webbrowser.open(files["html"].resolve().as_uri())
+    return _fail_code(doc, args.fail_on)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pbip-forensics",
                                      description="Read-only forensics for Power BI PBIP projects.")
@@ -205,6 +219,20 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--output", help="output directory (must be outside the audited project)")
         p.add_argument("--lang", choices=["en", "pt-BR"], default="en")
         p.add_argument("--max-file-mb", type=float, default=25.0, help="per-file size limit (MB)")
+
+    p = sub.add_parser("run", help="one-shot audit: everything + HTML report (recommended)")
+    p.add_argument("--project", required=True)
+    p.add_argument("--performance", help="Performance Analyzer export; auto-detected inside the project if omitted")
+    p.add_argument("--no-auto-performance", action="store_true", help="do not search the project for a log")
+    p.add_argument("--output", help="output folder (default: <project>-forensics next to the project)")
+    p.add_argument("--lang", choices=["en", "pt-BR"], default="en")
+    p.add_argument("--open", action="store_true", help="open the HTML report in the default browser")
+    p.add_argument("--exclude", action="append", help="folder name to skip (repeatable)")
+    p.add_argument("--no-default-excludes", action="store_true",
+                   help=f"also scan {', '.join(sorted(DEFAULT_EXCLUDES))}")
+    p.add_argument("--fail-on", choices=list(SEVERITY_RANK))
+    p.add_argument("--max-file-mb", type=float, default=25.0)
+    p.set_defaults(func=cmd_run)
 
     p = sub.add_parser("scan", help="discover and inventory a project")
     p.add_argument("--project", required=True)

@@ -8,9 +8,11 @@ dos achados permanecem em inglês nesta versão.
 
 from __future__ import annotations
 
-import html
 import json
 from typing import Any
+
+from pbip_forensics.reporting.html_report import to_html_report
+from pbip_forensics.reporting.insights import INS_LABELS, compute_insights
 
 Block = tuple[Any, ...]
 
@@ -77,6 +79,20 @@ def build_blocks(doc: dict[str, Any], lang: str = "en", max_rows: int = 200) -> 
                    f"{counts.get('relationships', 0)} relationship(s)."))
     if top:
         b.append(("ul", [f"**{f['severity']}/{f['status']}** {f['title']} (`{f['id']}`)" for f in top[:10]]))
+    if sev:  # notas, resumo em linguagem simples e ações rápidas (somente auditoria completa)
+        ins = compute_insights(doc, lang)
+        il = INS_LABELS.get(lang, INS_LABELS["en"])
+        sc = ins["scores"]
+        pt = lang == "pt-BR"
+        areas = [f"{il[a['key']]}: {'–' if a['score'] is None else a['score']} ({il[a['grade']]})"
+                 for a in sc["areas"]]
+        b.append(("p", f"**{'Nota de saúde' if pt else 'Health score'}: {sc['overall']}/100 "
+                       f"({il[sc['grade']]})** · " + " · ".join(areas) + f". _{sc['formula']}_"))
+        b.append(("h3", "Em palavras simples" if pt else "In plain words"))
+        b.append(("ul", ins["narrative"]))
+        b.append(("h3", "O que fazer primeiro" if pt else "What to do first"))
+        b.append(("ol", [f"**{w['title']}** — {il[w['effort']]}, {w['severity']}, {w['count']}× (`{w['rule_id']}`): "
+                         f"{w['recommendation']}" for w in ins["quick_wins"]]))
     # 2. Inventário
     b.append(("h2", L["inventory"]))
     b.append(("table", ["Item", "Count"], [[k, str(v)] for k, v in counts.items()]))
@@ -233,48 +249,6 @@ def to_markdown(blocks: list[Block]) -> str:
     return "\n".join(out).rstrip() + "\n"
 
 
-def _inline(text: str) -> str:
-    """Escapa HTML e converte **negrito** e `código` (sem executar nada)."""
-    esc = html.escape(text)
-    parts = esc.split("**")
-    esc = "".join(f"<strong>{p}</strong>" if i % 2 else p for i, p in enumerate(parts))
-    parts = esc.split("`")
-    return "".join(f"<code>{p}</code>" if i % 2 else p for i, p in enumerate(parts))
-
-
-_CSS = """body{font-family:Segoe UI,Arial,sans-serif;margin:2rem auto;max-width:1200px;padding:0 1rem;color:#1b1b1b}
-table{border-collapse:collapse;width:100%;margin:.5rem 0 1rem;font-size:.9rem}th,td{border:1px solid #ccc;
-padding:4px 6px;text-align:left;vertical-align:top}th{background:#f2f2f2}pre{background:#f7f7f7;padding:.6rem;
-overflow:auto;white-space:pre-wrap}h2{border-bottom:2px solid #333;padding-bottom:.2rem;margin-top:2rem}
-code{background:#f0f0f0;padding:0 3px}"""
-
-
-def to_html(blocks: list[Block], lang: str = "en") -> str:
-    """HTML estático, sem JavaScript e sem recursos externos."""
-    out = [f'<!doctype html><html lang="{html.escape(lang)}"><head><meta charset="utf-8">',
-           '<meta name="viewport" content="width=device-width, initial-scale=1">',
-           f"<title>{html.escape(str(blocks[0][1]))}</title><style>{_CSS}</style></head><body>"]
-    for blk in blocks:
-        kind = blk[0]
-        if kind in ("h1", "h2", "h3"):
-            out.append(f"<{kind}>{_inline(blk[1])}</{kind}>")
-        elif kind == "p":
-            out.append(f"<p>{_inline(blk[1])}</p>")
-        elif kind in ("ul", "ol"):
-            out.append(f"<{kind}>" + "".join(f"<li>{_inline(str(x))}</li>" for x in blk[1]) + f"</{kind}>")
-        elif kind == "pre":
-            out.append(f"<pre>{html.escape(blk[1])}</pre>")
-        elif kind == "table":
-            if not blk[2]:
-                out.append("<p><em>(empty)</em></p>")
-                continue
-            head = "".join(f"<th>{html.escape(h)}</th>" for h in blk[1])
-            rows = "".join("<tr>" + "".join(f"<td>{_inline(str(c))}</td>" for c in r) + "</tr>" for r in blk[2])
-            out.append(f"<table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>")
-    out.append("</body></html>")
-    return "\n".join(out)
-
-
 def render(doc: dict[str, Any], fmt: str, lang: str = "en") -> str:
     if fmt == "json":
         return json.dumps(doc, indent=2, ensure_ascii=False)
@@ -282,5 +256,5 @@ def render(doc: dict[str, Any], fmt: str, lang: str = "en") -> str:
     if fmt == "markdown":
         return to_markdown(blocks)
     if fmt == "html":
-        return to_html(blocks, lang)
+        return to_html_report(doc, lang)
     raise ValueError(f"Unknown format: {fmt}")

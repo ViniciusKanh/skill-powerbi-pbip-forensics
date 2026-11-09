@@ -80,7 +80,8 @@ def rel(root: Path, path: Path) -> str:
         return path.name
 
 
-def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path], list[str]]:
+def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES,
+              exclude_dirs: set[str] | None = None) -> tuple[list[Path], list[str]]:
     """Percorre a raiz sem seguir links para fora do escopo.
 
     Retorna (arquivos permitidos, avisos de itens ignorados).
@@ -93,6 +94,9 @@ def safe_walk(root: Path, max_files: int = DEFAULT_MAX_FILES) -> tuple[list[Path
         for d in sorted(dirnames):
             full = current / d
             if d in SKIP_DIRS:
+                continue
+            if exclude_dirs and d.lower() in exclude_dirs:
+                skipped.append(f"excluded-by-option: {rel(root, current)}/{d}")
                 continue
             if full.is_symlink() and not is_within(root, full):
                 skipped.append(f"symlink-outside-scope: {rel(root, current)}/{d}")

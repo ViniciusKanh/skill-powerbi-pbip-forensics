@@ -184,6 +184,21 @@ def model_findings(model: SemanticModel, idx: SemanticIndex) -> list[Finding]:
                 "Add a slicer from this table next to a measure from a fact table and check if values change.",
                 line=tb.line))
 
+    # MOD010 — colunas-chave do lado "many" visíveis para o usuário
+    visible_fk = sorted({f"'{r.from_table}'[{r.from_column}]" for r in model.relationships
+                         if r.from_cardinality == "many"
+                         and not r.to_table.startswith(("LocalDateTable_", "DateTableTemplate_"))
+                         and (col := idx.columns.get(r.from_table.lower(), {}).get(r.from_column.lower()))
+                         and not col.is_hidden})
+    if visible_fk:
+        out.append(Finding(
+            "MOD010", f"Relationship key columns visible on the many side ({len(visible_fk)})", CAT_MODEL, "INFO",
+            "potential", visible_fk[:25], model.path, f"{model.name}/visible-fk",
+            "Foreign-key columns on fact tables are visible in the field list.",
+            "Users may slice by the fact-side key instead of the dimension, which does not filter other facts.",
+            "Hide foreign-key columns on the many side and expose the dimension columns instead.",
+            "Check the Data pane: these columns should not appear to report authors."))
+
     # MOD009 — tabelas automáticas de data
     auto = [t.name for t in model.tables if t.name.startswith("LocalDateTable_")]
     if auto:

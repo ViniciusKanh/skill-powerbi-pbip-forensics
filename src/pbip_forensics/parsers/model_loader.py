@@ -42,6 +42,7 @@ def parse_bim(data: dict[str, Any], path: str) -> tuple[list[Table], list[Relati
                 table=tbl.name, name=str(c["name"]), data_type=(c.get("dataType") or None),
                 is_hidden=bool(c.get("isHidden", False)), is_calculated=calc,
                 expression=_join_expr(c.get("expression")) if calc else None, path=path,
+                sort_by=c.get("sortByColumn"),
             ))
         for m in t.get("measures", []) or []:
             if not isinstance(m, dict) or "name" not in m:
@@ -54,12 +55,16 @@ def parse_bim(data: dict[str, Any], path: str) -> tuple[list[Table], list[Relati
         for h in t.get("hierarchies", []) or []:
             if isinstance(h, dict) and "name" in h:
                 tbl.hierarchies.append(str(h["name"]))
+                for lv in h.get("levels", []) or []:
+                    if isinstance(lv, dict) and lv.get("column"):
+                        tbl.hierarchy_columns.append(str(lv["column"]))
         for p in t.get("partitions", []) or []:
             src = p.get("source", {}) if isinstance(p, dict) else {}
             kind = str(src.get("type", "unknown")).lower()
             tbl.partition_kinds.append(kind)
             if kind == "calculated":
                 tbl.is_calculated = True
+                tbl.calc_source = _join_expr(src.get("expression"))
             for s in detect_m_sources(_join_expr(src.get("expression"))):
                 if s not in tbl.data_sources:
                     tbl.data_sources.append(s)

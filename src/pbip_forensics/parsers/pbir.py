@@ -117,6 +117,24 @@ def _title(visual: dict[str, Any]) -> str | None:
     return val[1:-1].replace("''", "'") if len(val) >= 2 and val[0] == "'" == val[-1] else val
 
 
+def format_refs(obj: Any, limit: int = 500) -> list[FieldRef]:
+    """Campos/medidas referenciados em formatação (objects, visualContainerObjects, fx de títulos)."""
+    out: list[FieldRef] = []
+    stack = [obj]
+    while stack and len(out) < limit:
+        cur = stack.pop()
+        if isinstance(cur, dict):
+            if ("Measure" in cur or "Column" in cur) and isinstance(cur.get("Measure", cur.get("Column")), dict):
+                fr = field_from_container(cur, None, "format", "format")
+                if fr is not None and fr.entity and fr.property:
+                    out.append(fr)
+                    continue
+            stack.extend(cur.values())
+        elif isinstance(cur, list):
+            stack.extend(cur)
+    return out
+
+
 def parse_visual_json(data: Any, page: str, path: str) -> Visual:
     """Interpreta um visual.json PBIR (visualContainer)."""
     if not isinstance(data, dict):
@@ -139,6 +157,11 @@ def parse_visual_json(data: Any, page: str, path: str) -> Visual:
     for srt in (query.get("sortDefinition") or {}).get("sort", []) or []:
         fr = field_from_container((srt or {}).get("field"), None, "sort", "sort")
         if fr is not None:
+            v.fields.append(fr)
+    seen = {(f.kind, f.key()) for f in v.fields}
+    for fr in format_refs([vis.get("objects"), vis.get("visualContainerObjects")]):
+        if (fr.kind, fr.key()) not in seen:
+            seen.add((fr.kind, fr.key()))
             v.fields.append(fr)
     vfilters = _filters(data.get("filterConfig"))
     v.filter_count = len(vfilters)
@@ -245,7 +268,7 @@ def load_report(root: Path, folder: Path, max_bytes: int = DEFAULT_MAX_FILE_BYTE
             disp = str(pdata.get("displayName", pname)) if isinstance(pdata, dict) else pname
             page = Page(name=pname, display_name=disp, path=rel(root, pdir))
             if isinstance(pdata, dict):
-                page.filters = _filters(pdata.get("filterConfig"))
+                page.filters = _filters(pdata.get("filterConfig")) + format_refs(pdata.get("objects"))
             vdir = pdir / "visuals"
             for vd in sorted(vdir.iterdir()) if vdir.is_dir() else []:
                 vj = vd / "visual.json"

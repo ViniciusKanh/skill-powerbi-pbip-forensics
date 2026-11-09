@@ -7,6 +7,7 @@
     "references/question-playbook.md",
     "references/supported-formats.md",
     "scripts/pbip_diff.py",
+    "scripts/pbip_full_audit.py",
     "scripts/pbip_inspect.py",
     "scripts/pbip_model_audit.py",
     "scripts/pbip_perf_log.py",
@@ -24,51 +25,58 @@
       "version": "1.0.0"
     },
     "frontmatter_ok": true,
-    "file_count": 14,
-    "other_text_files": 13,
-    "total_characters": 501515,
+    "file_count": 15,
+    "other_text_files": 14,
+    "total_characters": 821446,
     "problems": [],
-    "zip_bytes": 143691,
-    "sha256": "54f91b20aecff8ebe873e402290471510a775faa174ead12f4858c099ec17a4d",
+    "zip_bytes": 232817,
+    "sha256": "310a9dbe762cd8c03cea77a0c070d99a6a9e9d0f32404de9d98424205ff79d4c",
     "limits_ok": true
   },
   "script_bytes": {
-    "pbip_diff.py": 90121,
-    "pbip_inspect.py": 85824,
-    "pbip_model_audit.py": 109933,
-    "pbip_perf_log.py": 24188,
-    "pbip_report.py": 34782,
-    "pbip_visual_deps.py": 118793
+    "pbip_diff.py": 92748,
+    "pbip_full_audit.py": 237389,
+    "pbip_inspect.py": 89269,
+    "pbip_model_audit.py": 114493,
+    "pbip_perf_log.py": 24599,
+    "pbip_report.py": 97046,
+    "pbip_visual_deps.py": 127154
   },
   "script_runs": [
     {
+      "script": "pbip_full_audit.py",
+      "exit_code": 0,
+      "seconds": 0.198,
+      "stderr": "ails'\n  [HIGH/confirmed] Visual references missing column Product[Colour]: 'By Colour' (barChart) on page 'Details'\n  [HIGH/potential] Ambiguous filter propagation between tables: Date, Product, Sales, Sales Target\nReport: C:\\Users\\Vinicius Santos\\AppData\\Local\\Temp\\tmpj4ppy2_e\\out\\audit-report.html"
+    },
+    {
       "script": "pbip_inspect.py",
       "exit_code": 0,
-      "seconds": 0.154,
+      "seconds": 0.15,
       "stderr": "wrote inspect.json (findings: CRITICAL=0, HIGH=0, MEDIUM=0, LOW=0, INFO=0)"
     },
     {
       "script": "pbip_model_audit.py",
       "exit_code": 0,
-      "seconds": 0.155,
-      "stderr": "wrote model_audit.json (findings: CRITICAL=0, HIGH=3, MEDIUM=5, LOW=7, INFO=3)"
+      "seconds": 0.147,
+      "stderr": "wrote model_audit.json (findings: CRITICAL=0, HIGH=3, MEDIUM=5, LOW=5, INFO=7)"
     },
     {
       "script": "pbip_visual_deps.py",
       "exit_code": 0,
-      "seconds": 0.174,
+      "seconds": 0.155,
       "stderr": "wrote visual_deps.json (findings: CRITICAL=0, HIGH=3, MEDIUM=0, LOW=0, INFO=4)"
     },
     {
       "script": "pbip_perf_log.py",
       "exit_code": 0,
-      "seconds": 0.115,
+      "seconds": 0.112,
       "stderr": "wrote perf_log.json (findings: CRITICAL=0, HIGH=1, MEDIUM=2, LOW=0, INFO=0)"
     },
     {
       "script": "pbip_diff.py",
       "exit_code": 0,
-      "seconds": 0.173,
+      "seconds": 0.17,
       "stderr": "wrote diff.json"
     },
     {

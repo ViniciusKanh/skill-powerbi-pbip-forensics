@@ -105,7 +105,6 @@ Measure 'Total Revenue' modified. Visuals referencing it (directly or via depend
 Relationship change alters filter propagation between account, customer. Measures aggregating these tables and visuals using them may require regression testing.
 
 - Dependent measure: Avg Customer Spend
-- Dependent measure: Segment Revenue
 - Dependent measure: Total Balance
 - Visual: ContosoRetail / Details / Avg Spend (card)
 - Visual: ContosoRetail / Details / Segment analysis (tableEx)

@@ -102,7 +102,6 @@
       "message": "Relationship change alters filter propagation between account, customer. Measures aggregating these tables and visuals using them may require regression testing.",
       "dependent_measures": [
         "Avg Customer Spend",
-        "Segment Revenue",
         "Total Balance"
       ],
       "affected_visuals": [

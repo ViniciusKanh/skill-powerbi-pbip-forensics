@@ -15,6 +15,9 @@ from pbip_forensics.parsers.dax import CALC_FUNCS, DAX_KEYWORDS, FILTER_REMOVERS
 # Funções que criam colunas implícitas ([Value], [Date]...) em tabelas temporárias.
 _IMPLICIT_COLUMN_FUNCS = {"GENERATESERIES", "CALENDAR", "CALENDARAUTO", "DATATABLE", "ROW"}
 _MODIFIER_FUNCS = FILTER_REMOVERS | {"USERELATIONSHIP", "CROSSFILTER", "KEEPFILTERS", "TREATAS"}
+# Funções que apenas consultam/inspecionam valores (não definem a tabela agregada).
+_PROBE_FUNCS = {"SELECTEDVALUE", "HASONEVALUE", "HASONEFILTER", "ISFILTERED", "ISCROSSFILTERED", "ISINSCOPE",
+                "LOOKUPVALUE", "RELATED", "FIRSTNONBLANK", "LASTNONBLANK"}
 
 
 @dataclass
@@ -142,7 +145,7 @@ class SemanticIndex:
         for call in info.calls:
             if call.name in CALC_FUNCS:
                 ranges.extend(call.args[1:])
-            elif call.name in _MODIFIER_FUNCS and call.args:
+            elif (call.name in _MODIFIER_FUNCS or call.name in _PROBE_FUNCS) and call.args:
                 ranges.append((call.args[0][0], call.args[-1][1]))
         return ranges
 

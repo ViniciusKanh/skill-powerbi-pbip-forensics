@@ -106,6 +106,7 @@ def run_scripts() -> list[dict]:
     v2 = ROOT / "examples" / "synthetic_project_v2"
     log = ROOT / "examples" / "sample_performance" / "performance.json"
     plans = {
+        "pbip_full_audit.py": ["--project", str(proj)],
         "pbip_inspect.py": ["--project", str(proj)],
         "pbip_model_audit.py": ["--project", str(proj)],
         "pbip_visual_deps.py": ["--project", str(proj), "--from-table", "Customer", "--to-table", "Account"],

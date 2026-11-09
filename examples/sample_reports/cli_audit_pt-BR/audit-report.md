@@ -1,10 +1,10 @@
 # Power BI PBIP Forensics — Relatório de Auditoria
 
-Project: **synthetic_project** · Tool powerbi-pbip-forensics 1.0.0 · Generated (UTC): 2026-11-09T02:39:50+00:00
+Project: **synthetic_project** · Tool powerbi-pbip-forensics 1.0.0 · Generated (UTC): 2026-11-09T13:47:18+00:00
 
 ## Resumo Executivo
 
-25 findings: CRITICAL 0, HIGH 6, MEDIUM 5, LOW 7, INFO 7. Confirmed 4, potential 20, inconclusive 1.
+27 findings: CRITICAL 0, HIGH 6, MEDIUM 5, LOW 5, INFO 11. Confirmed 4, potential 22, inconclusive 1.
 
 Inventory: 1 report(s), 2 page(s), 14 visual(s), 1 model(s), 8 table(s), 21 measure(s), 7 relationship(s).
 
@@ -14,6 +14,28 @@ Inventory: 1 report(s), 2 page(s), 14 visual(s), 1 model(s), 8 table(s), 21 meas
 - **HIGH/confirmed** Visual references missing column Product[Colour]: 'By Colour' (barChart) on page 'Details' (`VIS002-9448b93e`)
 - **HIGH/potential** Ambiguous filter propagation between tables: Date, Product, Sales, Sales Target (`MOD006-91919a00`)
 - **HIGH/potential** Unrelated tables combined in 'Customer Accounts' (tableEx) on page 'Overview': 'Account' and 'Customer' (`VIS006-94a723c2`)
+
+**Nota de saúde: 67/100 (Requer atenção)** · Modelo de dados: 82 (Requer atenção) · Medidas DAX: 58 (Crítico) · Relatório e visuais: 61 (Crítico) · Desempenho: – (Não medido) · Arquivos do projeto: 100 (Bom). _score = 100 × exp(−Σ weight(severity) × factor(status) / 40); weights CRITICAL 20, HIGH 8, MEDIUM 3, LOW 1, INFO 0; factors confirmed 1, potential 0.5, inconclusive 0.25._
+
+### Em palavras simples
+
+- O projeto tem 2 páginas com 14 visuais, apoiadas em 8 tabelas, 7 relacionamentos e 21 medidas.
+- 2 vínculo(s) de visual usam campos que não existem mais: esses visuais exibem erro.
+- 2 problema(s) confirmados em fórmulas DAX impedem medidas de calcular.
+- Existem caminhos de filtro ambíguos entre tabelas: alguns números podem depender de qual caminho o Power BI escolhe. É o principal ponto estrutural a revisar.
+- 1 visual(is)/filtro(s) podem não filtrar como o usuário espera (ex.: linhas repetindo o total ou dados sem relação).
+- Não foi informado log do Performance Analyzer, então não há medição real de lentidão; existem 3 padrões DAX que merecem medição.
+
+### O que fazer primeiro
+
+1. **Corrigir visuais ligados a campos removidos ou renomeados** — Ganho rápido, HIGH, 2× (`VIS002`): Rebind the visual to an existing field or restore the renamed/removed object.
+2. **Corrigir medidas que apontam para objetos inexistentes** — Ganho rápido, HIGH, 1× (`DAX001`): Fix the reference (renamed/removed object) or restore the missing object.
+3. **Corrigir USERELATIONSHIP/CROSSFILTER sem relacionamento** — Ganho rápido, HIGH, 1× (`DAX007`): Reference the columns of an existing relationship.
+4. **Corrigir tabelas que combinam dados sem relação** — Esforço médio, HIGH, 1× (`VIS006`): Activate/create the relationship path or add a measure that defines the link.
+5. **Eliminar caminhos de filtro ambíguos entre tabelas** — Estrutural, HIGH, 1× (`MOD006`): Make one relationship inactive or single-direction so only one path remains.
+6. **Alinhar tipos de dados das chaves** — Ganho rápido, MEDIUM, 1× (`MOD007`): Align the data types in Power Query.
+7. **Usar DIVIDE em vez de '/'** — Ganho rápido, LOW, 2× (`DAX009`): Use DIVIDE(numerator, denominator) to handle zero denominators.
+8. **Remover IFERROR/ISERROR** — Ganho rápido, LOW, 1× (`DAX010`): Prefer DIVIDE or explicit checks.
 
 ## Inventário do Projeto
 
@@ -85,16 +107,18 @@ Path `ContosoRetail.Report` · PBIR version 4.0 · dataset reference: ../Contoso
 | DAX005-df1901c4 | MEDIUM | potential | DAX performance | Context transition per row of 'Sales' in 'Sales'[Sales Per Row] |
 | MOD003-3ba1a50e | MEDIUM | potential | Relationships | Bidirectional relationship: Sales <-> Product |
 | MOD007-27d780fb | MEDIUM | potential | Relationships | Key data type mismatch: Sales Target[ProductKey] vs Product[ProductKey] |
-| DAX008-166e0024 | LOW | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Bonus] |
-| DAX008-99bc75d5 | LOW | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Segment Revenue] |
 | DAX009-47705197 | LOW | potential | DAX | Division operator '/' with a non-constant denominator in '_Measures'[Revenue Safe] |
 | DAX009-8e716128 | LOW | potential | DAX | Division operator '/' with a non-constant denominator in '_Measures'[Margin %] |
 | DAX010-b753d812 | LOW | potential | DAX performance | Error-handling function in '_Measures'[Revenue Safe] |
 | MOD002-5652a956 | LOW | potential | Relationships | Inactive relationship not activated by any measure: Account -> Customer |
 | MOD008-c8b3d9a7 | LOW | potential | Model structure | Disconnected table not referenced by any measure: Currency |
 | DAX006-78551bf8 | INFO | potential | Filter context | REMOVEFILTERS modifies filter context in '_Measures'[Revenue All Customers] |
+| DAX008-166e0024 | INFO | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Bonus] |
+| DAX008-99bc75d5 | INFO | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Segment Revenue] |
 | DAX008-e4611c35 | INFO | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Active Customers] |
+| DAX014-fa0ea27c | INFO | potential | DAX | Measures without a format string (18 of 21) |
 | MOD002-a665549f | INFO | potential | Relationships | Inactive relationship activated only by DAX: Sales -> Date |
+| MOD010-27aeba3a | INFO | potential | Model structure | Relationship key columns visible on the many side (7) |
 | VIS004-374e99c5 | INFO | potential | Visual dependencies | Visual uses a measure flagged for performance review: [Avg Customer Spend] |
 | VIS004-3c01da51 | INFO | potential | Visual dependencies | Visual uses a measure flagged for performance review: [High Value Revenue] |
 | VIS004-979c2499 | INFO | potential | Visual dependencies | Visual uses a measure flagged for performance review: [Sales Per Row] |
@@ -107,13 +131,13 @@ Path `ContosoRetail.Report` · PBIR version 4.0 · dataset reference: ../Contoso
 | CRITICAL | 0 |
 | HIGH | 6 |
 | MEDIUM | 5 |
-| LOW | 7 |
-| INFO | 7 |
+| LOW | 5 |
+| INFO | 11 |
 
 | Status | Count |
 |---|---|
 | confirmed | 4 |
-| potential | 20 |
+| potential | 22 |
 | inconclusive | 1 |
 
 ## Análise de Relacionamentos
@@ -136,6 +160,7 @@ Path `ContosoRetail.Report` · PBIR version 4.0 · dataset reference: ../Contoso
 | MOD002-5652a956 | LOW | potential | Relationships | Inactive relationship not activated by any measure: Account -> Customer |
 | MOD008-c8b3d9a7 | LOW | potential | Model structure | Disconnected table not referenced by any measure: Currency |
 | MOD002-a665549f | INFO | potential | Relationships | Inactive relationship activated only by DAX: Sales -> Date |
+| MOD010-27aeba3a | INFO | potential | Model structure | Relationship key columns visible on the many side (7) |
 
 ## Análise DAX
 
@@ -146,13 +171,14 @@ Path `ContosoRetail.Report` · PBIR version 4.0 · dataset reference: ../Contoso
 | DAX003-97330947 | MEDIUM | potential | DAX performance | FILTER over entire table 'Sales' used as CALCULATE filter in '_Measures'[High Value Revenue] |
 | DAX004-0095bb0c | MEDIUM | potential | DAX performance | Nested iterators AVERAGEX > SUMX in '_Measures'[Avg Customer Spend] |
 | DAX005-df1901c4 | MEDIUM | potential | DAX performance | Context transition per row of 'Sales' in 'Sales'[Sales Per Row] |
-| DAX008-166e0024 | LOW | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Bonus] |
-| DAX008-99bc75d5 | LOW | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Segment Revenue] |
 | DAX009-47705197 | LOW | potential | DAX | Division operator '/' with a non-constant denominator in '_Measures'[Revenue Safe] |
 | DAX009-8e716128 | LOW | potential | DAX | Division operator '/' with a non-constant denominator in '_Measures'[Margin %] |
 | DAX010-b753d812 | LOW | potential | DAX performance | Error-handling function in '_Measures'[Revenue Safe] |
 | DAX006-78551bf8 | INFO | potential | Filter context | REMOVEFILTERS modifies filter context in '_Measures'[Revenue All Customers] |
+| DAX008-166e0024 | INFO | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Bonus] |
+| DAX008-99bc75d5 | INFO | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Segment Revenue] |
 | DAX008-e4611c35 | INFO | potential | Filter context | Total may differ from the sum of visible rows: '_Measures'[Active Customers] |
+| DAX014-fa0ea27c | INFO | potential | DAX | Measures without a format string (18 of 21) |
 
 | Measure | Depth | Depends on |
 |---|---|---|
@@ -415,33 +441,6 @@ crossFilteringBehavior: bothDirections
 string vs int64
 ```
 
-### DAX008-166e0024 — Total may differ from the sum of visible rows: '_Measures'[Bonus]
-
-- Severity: LOW · Status: potential · Category: Filter context
-- Source: `ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl:26` · Object: `ContosoRetail/measure/_Measures/Bonus/totals`
-- Explanation: Power BI evaluates the measure again in the total's filter context; it does not sum the rows.
-- Impact: Users may perceive totals as wrong.
-- Recommendation: If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).
-- Verification: Export the visible rows, sum them, and compare with the total for the same filters.
-
-```text
-IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate
-```
-
-### DAX008-99bc75d5 — Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]
-
-- Severity: LOW · Status: potential · Category: Filter context
-- Source: `ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl:30` · Object: `ContosoRetail/measure/_Measures/Segment Revenue/totals`
-- Explanation: Power BI evaluates the measure again in the total's filter context; it does not sum the rows.
-- Impact: Users may perceive totals as wrong.
-- Recommendation: If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).
-- Verification: Export the visible rows, sum them, and compare with the total for the same filters.
-
-```text
-IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate
-uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design
-```
-
 ### DAX009-47705197 — Division operator '/' with a non-constant denominator in '_Measures'[Revenue Safe]
 
 - Severity: LOW · Status: potential · Category: DAX
@@ -523,6 +522,33 @@ No measure references its columns
 REMOVEFILTERS('Customer') used as calculate-filter
 ```
 
+### DAX008-166e0024 — Total may differ from the sum of visible rows: '_Measures'[Bonus]
+
+- Severity: INFO · Status: potential · Category: Filter context
+- Source: `ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl:26` · Object: `ContosoRetail/measure/_Measures/Bonus/totals`
+- Explanation: Power BI evaluates the measure again in the total's filter context; it does not sum the rows.
+- Impact: Users may perceive totals as wrong.
+- Recommendation: If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).
+- Verification: Export the visible rows, sum them, and compare with the total for the same filters.
+
+```text
+IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate
+```
+
+### DAX008-99bc75d5 — Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]
+
+- Severity: INFO · Status: potential · Category: Filter context
+- Source: `ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl:30` · Object: `ContosoRetail/measure/_Measures/Segment Revenue/totals`
+- Explanation: Power BI evaluates the measure again in the total's filter context; it does not sum the rows.
+- Impact: Users may perceive totals as wrong.
+- Recommendation: If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).
+- Verification: Export the visible rows, sum them, and compare with the total for the same filters.
+
+```text
+IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate
+uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design
+```
+
 ### DAX008-e4611c35 — Total may differ from the sum of visible rows: '_Measures'[Active Customers]
 
 - Severity: INFO · Status: potential · Category: Filter context
@@ -534,6 +560,36 @@ REMOVEFILTERS('Customer') used as calculate-filter
 
 ```text
 DISTINCTCOUNT is non-additive: the total is not the sum of rows
+```
+
+### DAX014-fa0ea27c — Measures without a format string (18 of 21)
+
+- Severity: INFO · Status: potential · Category: DAX
+- Source: `ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl` · Object: `ContosoRetail/no-format`
+- Explanation: These measures have no formatString; numeric results use the default format.
+- Impact: Inconsistent number formatting across visuals (decimals, currency, percentages).
+- Recommendation: Set a format string on numeric measures (text/color measures do not need one).
+- Verification: Review the measures in the Model view > Properties > Format.
+
+```text
+[Active Customers]
+[Avg Customer Spend]
+[Bonus]
+[Broken UseRel]
+[Customer's Rank]
+[Formatted Label]
+[High Value Revenue]
+[Margin %]
+[Revenue (R$) – Net]
+[Revenue All Customers]
+[Revenue by Ship Date]
+[Revenue LY]
+[Revenue Safe]
+[Sales Per Row]
+[Segment Revenue]
+[Target Amount]
+[Total Balance]
+[Unused Helper]
 ```
 
 ### MOD002-a665549f — Inactive relationship activated only by DAX: Sales -> Date
@@ -549,6 +605,25 @@ DISTINCTCOUNT is non-additive: the total is not the sum of rows
 'Sales'[ShipDate] (many) -> 'Date'[Date] (one)
 isActive: false
 Activated via USERELATIONSHIP in: Revenue by Ship Date
+```
+
+### MOD010-27aeba3a — Relationship key columns visible on the many side (7)
+
+- Severity: INFO · Status: potential · Category: Model structure
+- Source: `ContosoRetail.SemanticModel` · Object: `ContosoRetail/visible-fk`
+- Explanation: Foreign-key columns on fact tables are visible in the field list.
+- Impact: Users may slice by the fact-side key instead of the dimension, which does not filter other facts.
+- Recommendation: Hide foreign-key columns on the many side and expose the dimension columns instead.
+- Verification: Check the Data pane: these columns should not appear to report authors.
+
+```text
+'Account'[CustomerKey]
+'Sales Target'[ProductKey]
+'Sales Target'[TargetDate]
+'Sales'[CustomerKey]
+'Sales'[OrderDate]
+'Sales'[ProductKey]
+'Sales'[ShipDate]
 ```
 
 ### VIS004-374e99c5 — Visual uses a measure flagged for performance review: [Avg Customer Spend]
