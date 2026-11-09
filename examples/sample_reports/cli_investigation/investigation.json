@@ -1,0 +1,31 @@
+{
+  "type": "filter-investigation",
+  "from_table": "Customer",
+  "targets": [
+    "Sales"
+  ],
+  "measure": "Revenue All Customers",
+  "visual": null,
+  "evidence": [
+    "Measure Revenue All Customers aggregates tables: Sales",
+    "Measure dependencies: Total Revenue",
+    "Direction-compatible active paths 'Customer' -> 'Sales': 1",
+    "  ACTIVE PATH: 'Customer' -> 'Sales' via 'Sales'[CustomerKey] (many) -> 'Customer'[CustomerKey] (one) [active]",
+    "Modifier in Revenue All Customers: REMOVEFILTERS('Customer') [calculate-filter]"
+  ],
+  "hypotheses": [
+    {
+      "hypothesis": "Measure logic removes filters: Revenue All Customers uses REMOVEFILTERS('Customer').",
+      "confidence": "high",
+      "justification": "Static DAX evidence: the filter modifier targets the selected table or the aggregated table, so selections there are ignored by design.",
+      "verification_steps": [
+        "Compare the measure with its base measure under the same selection.",
+        "If selections must apply, remove the modifier or use KEEPFILTERS/narrower targets."
+      ],
+      "rank": 1
+    }
+  ],
+  "note": "Deterministic evidence comes from model files; hypotheses require verification in Power BI.",
+  "project": "synthetic_project",
+  "model": "ContosoRetail"
+}

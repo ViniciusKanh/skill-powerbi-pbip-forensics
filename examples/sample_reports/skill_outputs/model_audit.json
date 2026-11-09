@@ -1,0 +1,386 @@
+{
+  "tool": "powerbi-pbip-forensics",
+  "version": "1.0.0",
+  "script": "model_audit",
+  "project": "synthetic_project",
+  "generated_at": "2026-11-09T02:39:50+00:00",
+  "findings": [
+    {
+      "rule_id": "DAX001",
+      "title": "Unresolved reference [Total Cost] in '_Measures'[Margin %]",
+      "category": "DAX",
+      "severity": "HIGH",
+      "status": "confirmed",
+      "evidence": [
+        "Expression references [Total Cost]",
+        "no measure or column with this name in the model"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Margin %/[Total Cost]",
+      "explanation": "The referenced object is not defined in the parsed semantic model.",
+      "impact": "The expression fails to evaluate; every visual using it shows an error.",
+      "recommendation": "Fix the reference (renamed/removed object) or restore the missing object.",
+      "verification": "Open the expression in Power BI Desktop; invalid references are underlined.",
+      "line": 20,
+      "confidence_note": "",
+      "id": "DAX001-a6fc3f5d"
+    },
+    {
+      "rule_id": "DAX007",
+      "title": "USERELATIONSHIP references columns without a relationship in '_Measures'[Broken UseRel]",
+      "category": "DAX",
+      "severity": "HIGH",
+      "status": "confirmed",
+      "evidence": [
+        "USERELATIONSHIP('Sales'[ProductKey], 'Customer'[CustomerKey])",
+        "No relationship between these columns exists in the model"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Broken UseRel/USERELATIONSHIP",
+      "explanation": "USERELATIONSHIP requires an existing relationship.",
+      "impact": "The measure returns an error.",
+      "recommendation": "Reference the columns of an existing relationship.",
+      "verification": "Evaluate the measure in Power BI Desktop.",
+      "line": 24,
+      "confidence_note": "",
+      "id": "DAX007-5f50ca7c"
+    },
+    {
+      "rule_id": "MOD006",
+      "title": "Ambiguous filter propagation between tables: Date, Product, Sales, Sales Target",
+      "category": "Relationships",
+      "severity": "HIGH",
+      "status": "potential",
+      "evidence": [
+        "'Sales Target'[ProductKey] (many) -> 'Product'[ProductKey] (one)",
+        "'Sales Target'[TargetDate] (many) -> 'Date'[Date] (one)",
+        "'Sales'[OrderDate] (many) -> 'Date'[Date] (one)",
+        "'Sales'[ProductKey] (many) <-> 'Product'[ProductKey] (one)",
+        "'Date' reaches 'Sales Target' through 2 active paths: Date -> Sales Target | Date -> Sales -> Product -> Sales Target"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+      "object_ref": "ContosoRetail/cycle/6c0d2f01-0000-4000-8000-000000000002+6c0d2f01-0000-4000-8000-000000000003+6c0d2f01-0000-4000-8000-000000000005+6c0d2f01-0000-4000-8000-000000000006",
+      "explanation": "More than one active, direction-compatible path connects the same tables.",
+      "impact": "Filter results depend on which path the engine uses; Power BI may also refuse to activate one of the relationships.",
+      "recommendation": "Make one relationship inactive or single-direction so only one path remains.",
+      "verification": "Open Model view in Power BI Desktop and check for ambiguity warnings; test the affected measures.",
+      "line": 19,
+      "confidence_note": "",
+      "id": "MOD006-91919a00"
+    },
+    {
+      "rule_id": "DAX003",
+      "title": "FILTER over entire table 'Sales' used as CALCULATE filter in '_Measures'[High Value Revenue]",
+      "category": "DAX performance",
+      "severity": "MEDIUM",
+      "status": "potential",
+      "evidence": [
+        "CALCULATE( ..., FILTER(Sales, ...) ) at expression line 4",
+        "'Sales' structural role: fact"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/High Value Revenue/filter-1",
+      "explanation": "A table filter iterates every row of the (expanded) table and keeps all its columns as filter.",
+      "impact": "Often slower than a column predicate and may filter related tables more than intended.",
+      "recommendation": "Use column predicates (e.g., 'T'[Col] > x) or FILTER(VALUES('T'[Col]), ...); add KEEPFILTERS if the intent is to intersect with existing filters.",
+      "verification": "Compare query duration (Performance Analyzer / DAX query view) before and after the change.",
+      "line": 14,
+      "confidence_note": "",
+      "id": "DAX003-97330947"
+    },
+    {
+      "rule_id": "DAX004",
+      "title": "Nested iterators AVERAGEX > SUMX in '_Measures'[Avg Customer Spend]",
+      "category": "DAX performance",
+      "severity": "MEDIUM",
+      "status": "potential",
+      "evidence": [
+        "SUMX is evaluated inside the row expression of AVERAGEX",
+        "outer table: Customer",
+        "inner table: (expression)"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Avg Customer Spend/nested-1",
+      "explanation": "The inner iteration runs once per row of the outer iteration.",
+      "impact": "Cost grows with the product of both cardinalities; risk depends on data volume.",
+      "recommendation": "Pre-aggregate (SUMMARIZE/ADDCOLUMNS with a measure) or move logic to a column if static.",
+      "verification": "Measure server timings in DAX query view or DAX Studio with realistic filters.",
+      "line": 18,
+      "confidence_note": "",
+      "id": "DAX004-0095bb0c"
+    },
+    {
+      "rule_id": "DAX005",
+      "title": "Context transition per row of 'Sales' in 'Sales'[Sales Per Row]",
+      "category": "DAX performance",
+      "severity": "MEDIUM",
+      "status": "potential",
+      "evidence": [
+        "SUMX(Sales, ...) evaluates [Total Revenue] per row",
+        "'Sales' structural role: fact"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
+      "object_ref": "ContosoRetail/measure/Sales/Sales Per Row/ctx-0",
+      "explanation": "Referencing a measure inside an iterator triggers context transition for every row.",
+      "impact": "On large fact tables this can be expensive and may duplicate rows with identical values.",
+      "recommendation": "Iterate a dimension or VALUES of a key column instead of the fact table.",
+      "verification": "Compare duration and results with the alternative formulation.",
+      "line": 12,
+      "confidence_note": "",
+      "id": "DAX005-df1901c4"
+    },
+    {
+      "rule_id": "MOD003",
+      "title": "Bidirectional relationship: Sales <-> Product",
+      "category": "Relationships",
+      "severity": "MEDIUM",
+      "status": "potential",
+      "evidence": [
+        "'Sales'[ProductKey] (many) <-> 'Product'[ProductKey] (one)",
+        "crossFilteringBehavior: bothDirections",
+        "'Sales' is fact, 'Product' is dimension"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+      "object_ref": "ContosoRetail/relationship/6c0d2f01-0000-4000-8000-000000000002",
+      "explanation": "Bidirectional cross-filtering lets the many side filter the one side, which can create additional filter paths.",
+      "impact": "Possible ambiguity, unexpected filtering of dimensions and slower queries.",
+      "recommendation": "Prefer single direction; use CROSSFILTER(..., BOTH) inside specific measures if required.",
+      "verification": "Check whether slicers on related dimensions change unexpectedly when this table is filtered.",
+      "line": 5,
+      "confidence_note": "",
+      "id": "MOD003-3ba1a50e"
+    },
+    {
+      "rule_id": "MOD007",
+      "title": "Key data type mismatch: Sales Target[ProductKey] vs Product[ProductKey]",
+      "category": "Relationships",
+      "severity": "MEDIUM",
+      "status": "potential",
+      "evidence": [
+        "'Sales Target'[ProductKey] (many) -> 'Product'[ProductKey] (one)",
+        "string vs int64"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+      "object_ref": "ContosoRetail/relationship/6c0d2f01-0000-4000-8000-000000000005",
+      "explanation": "Relationship key columns have different declared data types.",
+      "impact": "Implicit conversion can cause unmatched keys (blank member) and slower joins.",
+      "recommendation": "Align the data types in Power Query.",
+      "verification": "Look for a (Blank) member when slicing by the one-side table.",
+      "line": 19,
+      "confidence_note": "",
+      "id": "MOD007-27d780fb"
+    },
+    {
+      "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Bonus]",
+      "category": "Filter context",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Bonus/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 26,
+      "confidence_note": "",
+      "id": "DAX008-166e0024"
+    },
+    {
+      "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Segment Revenue]",
+      "category": "Filter context",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "IF/SWITCH evaluated on measure values without iterating rows: at the total level the condition is evaluated once on the aggregate",
+        "uses HASONEVALUE, SELECTEDVALUE: total rows follow a different branch by design"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Segment Revenue/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 30,
+      "confidence_note": "",
+      "id": "DAX008-99bc75d5"
+    },
+    {
+      "rule_id": "DAX009",
+      "title": "Division operator '/' with a non-constant denominator in '_Measures'[Revenue Safe]",
+      "category": "DAX",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "'/' at expression line 1"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Revenue Safe/divide",
+      "explanation": "The '/' operator raises an error/infinity when the denominator is zero or blank.",
+      "impact": "Visuals may show errors or Infinity for some selections.",
+      "recommendation": "Use DIVIDE(numerator, denominator) to handle zero denominators.",
+      "verification": "Select a slice where the denominator is zero or blank.",
+      "line": 39,
+      "confidence_note": "",
+      "id": "DAX009-47705197"
+    },
+    {
+      "rule_id": "DAX009",
+      "title": "Division operator '/' with a non-constant denominator in '_Measures'[Margin %]",
+      "category": "DAX",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "'/' at expression line 1"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Margin %/divide",
+      "explanation": "The '/' operator raises an error/infinity when the denominator is zero or blank.",
+      "impact": "Visuals may show errors or Infinity for some selections.",
+      "recommendation": "Use DIVIDE(numerator, denominator) to handle zero denominators.",
+      "verification": "Select a slice where the denominator is zero or blank.",
+      "line": 20,
+      "confidence_note": "",
+      "id": "DAX009-8e716128"
+    },
+    {
+      "rule_id": "DAX010",
+      "title": "Error-handling function in '_Measures'[Revenue Safe]",
+      "category": "DAX performance",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "uses IFERROR"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Revenue Safe/iferror",
+      "explanation": "IFERROR/ISERROR can force slower evaluation and hide data problems.",
+      "impact": "Possible performance cost; masked errors.",
+      "recommendation": "Prefer DIVIDE or explicit checks.",
+      "verification": "Compare query durations with and without the error handler.",
+      "line": 39,
+      "confidence_note": "",
+      "id": "DAX010-b753d812"
+    },
+    {
+      "rule_id": "MOD002",
+      "title": "Inactive relationship not activated by any measure: Account -> Customer",
+      "category": "Relationships",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "'Account'[CustomerKey] (many) -> 'Customer'[CustomerKey] (one)",
+        "isActive: false",
+        "No USERELATIONSHIP reference found in any measure"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+      "object_ref": "ContosoRetail/relationship/6c0d2f01-0000-4000-8000-000000000007",
+      "explanation": "This relationship does not propagate filters and no measure in the model activates it.",
+      "impact": "Selections on 'Customer' will not filter 'Account' through this relationship; visuals may show unrelated rows or repeated totals.",
+      "recommendation": "Activate it, remove it, or add measures that use USERELATIONSHIP where needed.",
+      "verification": "Place a column of 'Customer' and a column/measure of 'Account' in a table visual and observe whether rows are restricted.",
+      "line": 27,
+      "confidence_note": "",
+      "id": "MOD002-5652a956"
+    },
+    {
+      "rule_id": "MOD008",
+      "title": "Disconnected table not referenced by any measure: Currency",
+      "category": "Model structure",
+      "severity": "LOW",
+      "status": "potential",
+      "evidence": [
+        "Table 'Currency' has no relationships",
+        "No measure references its columns"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/Currency.tmdl",
+      "object_ref": "ContosoRetail/table/Currency",
+      "explanation": "Filters on this table cannot propagate to any other table.",
+      "impact": "Slicers or visuals combining this table with other tables will not filter them.",
+      "recommendation": "Create the missing relationship or remove the table if unused.",
+      "verification": "Add a slicer from this table next to a measure from a fact table and check if values change.",
+      "line": 1,
+      "confidence_note": "",
+      "id": "MOD008-c8b3d9a7"
+    },
+    {
+      "rule_id": "DAX006",
+      "title": "REMOVEFILTERS modifies filter context in '_Measures'[Revenue All Customers]",
+      "category": "Filter context",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "REMOVEFILTERS('Customer') used as calculate-filter"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Revenue All Customers/REMOVEFILTERS-'Customer'",
+      "explanation": "REMOVEFILTERS removes (or restores) filters on 'Customer' for this calculation.",
+      "impact": "Selections on those objects do not restrict this measure; this is a common cause of 'measure ignores my slicer'.",
+      "recommendation": "Confirm the intent; use KEEPFILTERS or narrower column targets if selections must apply.",
+      "verification": "Apply a slicer on the target and compare this measure with its base measure.",
+      "line": 5,
+      "confidence_note": "",
+      "id": "DAX006-78551bf8"
+    },
+    {
+      "rule_id": "DAX008",
+      "title": "Total may differ from the sum of visible rows: '_Measures'[Active Customers]",
+      "category": "Filter context",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "DISTINCTCOUNT is non-additive: the total is not the sum of rows"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+      "object_ref": "ContosoRetail/measure/_Measures/Active Customers/totals",
+      "explanation": "Power BI evaluates the measure again in the total's filter context; it does not sum the rows.",
+      "impact": "Users may perceive totals as wrong.",
+      "recommendation": "If the total must be the sum of rows, iterate the grouping column (SUMX(VALUES(...), [Measure])).",
+      "verification": "Export the visible rows, sum them, and compare with the total for the same filters.",
+      "line": 28,
+      "confidence_note": "",
+      "id": "DAX008-e4611c35"
+    },
+    {
+      "rule_id": "MOD002",
+      "title": "Inactive relationship activated only by DAX: Sales -> Date",
+      "category": "Relationships",
+      "severity": "INFO",
+      "status": "potential",
+      "evidence": [
+        "'Sales'[ShipDate] (many) -> 'Date'[Date] (one)",
+        "isActive: false",
+        "Activated via USERELATIONSHIP in: Revenue by Ship Date"
+      ],
+      "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+      "object_ref": "ContosoRetail/relationship/6c0d2f01-0000-4000-8000-000000000004",
+      "explanation": "Inactive relationships never propagate filters unless a measure activates them.",
+      "impact": "Only the listed measures respond to filters through this path; all other measures ignore it.",
+      "recommendation": "Confirm this is intentional (e.g., role-playing date) and document the activating measures.",
+      "verification": "In a table visual, compare a listed measure against a non-activating measure for the same selection.",
+      "line": 14,
+      "confidence_note": "",
+      "id": "MOD002-a665549f"
+    }
+  ],
+  "severity_breakdown": {
+    "CRITICAL": 0,
+    "HIGH": 3,
+    "MEDIUM": 5,
+    "LOW": 7,
+    "INFO": 3
+  },
+  "status_breakdown": {
+    "confirmed": 2,
+    "potential": 16,
+    "inconclusive": 0
+  },
+  "limitations": [
+    "Static analysis only: DAX is not executed and no data values are read.",
+    "Filter-propagation results are derived from relationship metadata, not from query plans."
+  ]
+}

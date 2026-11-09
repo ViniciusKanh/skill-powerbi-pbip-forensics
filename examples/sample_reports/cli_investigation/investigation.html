@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power BI PBIP Forensics — Audit Report</title><style>body{font-family:Segoe UI,Arial,sans-serif;margin:2rem auto;max-width:1200px;padding:0 1rem;color:#1b1b1b}
+table{border-collapse:collapse;width:100%;margin:.5rem 0 1rem;font-size:.9rem}th,td{border:1px solid #ccc;
+padding:4px 6px;text-align:left;vertical-align:top}th{background:#f2f2f2}pre{background:#f7f7f7;padding:.6rem;
+overflow:auto;white-space:pre-wrap}h2{border-bottom:2px solid #333;padding-bottom:.2rem;margin-top:2rem}
+code{background:#f0f0f0;padding:0 3px}</style></head><body>
+<h1>Power BI PBIP Forensics — Audit Report</h1>
+<p>Project: <strong>synthetic_project</strong> · Tool powerbi-pbip-forensics 1.0.0 · Generated (UTC): </p>
+<h2>Executive Summary</h2>
+<p>0 findings produced by this command (full rule set runs with <code>audit</code>).</p>
+<p>Inventory: 0 report(s), 0 page(s), 0 visual(s), 0 model(s), 0 table(s), 0 measure(s), 0 relationship(s).</p>
+<h2>Project Inventory</h2>
+<p><em>(empty)</em></p>
+<h2>Audit Scope</h2>
+<ul><li>Project folder: <code>synthetic_project</code> (read-only: True)</li><li>Modules: filter-investigation</li><li>Performance log: not provided</li><li>Skipped items (security/scope): 0</li></ul>
+<h2>Overall Findings</h2>
+<p>No findings in this section.</p>
+<h2>Severity Breakdown</h2>
+<p><em>(empty)</em></p>
+<p><em>(empty)</em></p>
+<h2>Relationship Analysis</h2>
+<p>No findings in this section.</p>
+<h2>DAX Analysis</h2>
+<p>No findings in this section.</p>
+<h2>Visual Dependencies</h2>
+<p>No findings in this section.</p>
+<p>Dependency map: 0 bindings (Page → Visual → Field → Table).</p>
+<p><em>(empty)</em></p>
+<h2>Performance Analysis</h2>
+<p>No Performance Analyzer log was provided. No runtime measurements are available; the items below are static risks that should be measured before acting.</p>
+<p>No findings in this section.</p>
+<h2>Change Impact</h2>
+<p>No version comparison was requested for this report.</p>
+<h2>Root Cause Hypotheses</h2>
+<h3>Investigation: Customer → Sales (measure Revenue All Customers)</h3>
+<p>Deterministic evidence:</p>
+<pre>Measure Revenue All Customers aggregates tables: Sales
+Measure dependencies: Total Revenue
+Direction-compatible active paths &#x27;Customer&#x27; -&gt; &#x27;Sales&#x27;: 1
+  ACTIVE PATH: &#x27;Customer&#x27; -&gt; &#x27;Sales&#x27; via &#x27;Sales&#x27;[CustomerKey] (many) -&gt; &#x27;Customer&#x27;[CustomerKey] (one) [active]
+Modifier in Revenue All Customers: REMOVEFILTERS(&#x27;Customer&#x27;) [calculate-filter]</pre>
+<p><strong>#1 [high confidence]</strong> Measure logic removes filters: Revenue All Customers uses REMOVEFILTERS(&#x27;Customer&#x27;). — Static DAX evidence: the filter modifier targets the selected table or the aggregated table, so selections there are ignored by design.</p>
+<ul><li>Compare the measure with its base measure under the same selection.</li><li>If selections must apply, remove the modifier or use KEEPFILTERS/narrower targets.</li></ul>
+<h2>Recommended Actions</h2>
+<p>No findings in this section.</p>
+<h2>Limitations</h2>
+<ul></ul>
+<h2>Evidence Appendix</h2>
+</body></html>

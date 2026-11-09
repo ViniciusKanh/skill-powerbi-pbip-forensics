@@ -1,0 +1,188 @@
+{
+  "tool": "powerbi-pbip-forensics",
+  "version": "1.0.0",
+  "script": "perf_log",
+  "project": null,
+  "generated_at": "2026-11-09T02:39:50+00:00",
+  "findings": [
+    {
+      "rule_id": "PERF001",
+      "title": "Slow visual in recorded session: Customer Accounts",
+      "category": "Performance",
+      "severity": "HIGH",
+      "status": "confirmed",
+      "evidence": [
+        "Measured total: 3420.0 ms (threshold 1000/3000 ms)",
+        "DAX query: 3198.0 ms; Direct query: 0.0 ms; Visual display: 180.0 ms; Other (derived): 42.0 ms"
+      ],
+      "path": "performance.json",
+      "object_ref": "perf/v_table_accounts/2026-10-01T12:00:01.000Z",
+      "explanation": "Duration measured by Performance Analyzer during the recorded session.",
+      "impact": "Users experience delay on this visual; durations include queueing on the UI thread.",
+      "recommendation": "DAX query time dominates: copy the query (Copy query) into DAX query view or DAX Studio, check server timings and review the measures involved.",
+      "verification": "Record a new session with Performance Analyzer (clear cache by refreshing visuals) and compare.",
+      "line": null,
+      "confidence_note": "",
+      "id": "PERF001-76dd5690"
+    },
+    {
+      "rule_id": "PERF001",
+      "title": "Slow visual in recorded session: Revenue LY vs Ship Date",
+      "category": "Performance",
+      "severity": "MEDIUM",
+      "status": "confirmed",
+      "evidence": [
+        "Measured total: 1320.0 ms (threshold 1000/3000 ms)",
+        "DAX query: 298.0 ms; Direct query: 0.0 ms; Visual display: 120.0 ms; Other (derived): 902.0 ms"
+      ],
+      "path": "performance.json",
+      "object_ref": "perf/v_matrix_ly/2026-10-01T12:00:01.000Z",
+      "explanation": "Duration measured by Performance Analyzer during the recorded session.",
+      "impact": "Users experience delay on this visual; durations include queueing on the UI thread.",
+      "recommendation": "'Other' dominates: the visual waited for other operations (queueing on the UI thread); reduce the number of visuals on the page or use bookmarks/drill-through.",
+      "verification": "Record a new session with Performance Analyzer (clear cache by refreshing visuals) and compare.",
+      "line": null,
+      "confidence_note": "",
+      "id": "PERF001-98bea5b0"
+    },
+    {
+      "rule_id": "PERF001",
+      "title": "Slow visual in recorded session: Revenue by Category",
+      "category": "Performance",
+      "severity": "MEDIUM",
+      "status": "confirmed",
+      "evidence": [
+        "Measured total: 1500.0 ms (threshold 1000/3000 ms)",
+        "DAX query: 218.0 ms; Direct query: 0.0 ms; Visual display: 1250.0 ms; Other (derived): 32.0 ms"
+      ],
+      "path": "performance.json",
+      "object_ref": "perf/v_col_category/2026-10-01T12:00:01.000Z",
+      "explanation": "Duration measured by Performance Analyzer during the recorded session.",
+      "impact": "Users experience delay on this visual; durations include queueing on the UI thread.",
+      "recommendation": "Visual display dominates: reduce data points/rows, simplify formatting or custom visual rendering.",
+      "verification": "Record a new session with Performance Analyzer (clear cache by refreshing visuals) and compare.",
+      "line": null,
+      "confidence_note": "",
+      "id": "PERF001-fa3d6fe1"
+    }
+  ],
+  "severity_breakdown": {
+    "CRITICAL": 0,
+    "HIGH": 1,
+    "MEDIUM": 2,
+    "LOW": 0,
+    "INFO": 0
+  },
+  "status_breakdown": {
+    "confirmed": 3,
+    "potential": 0,
+    "inconclusive": 0
+  },
+  "performance": {
+    "version": "1.1.0",
+    "event_count": 21,
+    "user_actions": 1,
+    "visuals": [
+      {
+        "visual_id": "v_table_accounts",
+        "visual_title": "Customer Accounts",
+        "visual_type": "tableEx",
+        "status": "Succeeded",
+        "total_ms": 3420.0,
+        "dax_query_ms": 3198.0,
+        "direct_query_ms": 0.0,
+        "visual_display_ms": 180.0,
+        "evaluated_parameters_ms": 0.0,
+        "other_ms": 42.0,
+        "queries": [
+          "EVALUATE SUMMARIZECOLUMNS('Customer'[Customer Name], 'Account'[Account Name])"
+        ],
+        "row_counts": [
+          5000
+        ],
+        "start": "2026-10-01T12:00:01.000Z"
+      },
+      {
+        "visual_id": "v_col_category",
+        "visual_title": "Revenue by Category",
+        "visual_type": "clusteredColumnChart",
+        "status": "Succeeded",
+        "total_ms": 1500.0,
+        "dax_query_ms": 218.0,
+        "direct_query_ms": 0.0,
+        "visual_display_ms": 1250.0,
+        "evaluated_parameters_ms": 0.0,
+        "other_ms": 32.0,
+        "queries": [
+          "EVALUATE SUMMARIZECOLUMNS('Product'[Category], \"Total_Revenue\", [Total Revenue])"
+        ],
+        "row_counts": [
+          12
+        ],
+        "start": "2026-10-01T12:00:01.000Z"
+      },
+      {
+        "visual_id": "v_matrix_ly",
+        "visual_title": "Revenue LY vs Ship Date",
+        "visual_type": "pivotTable",
+        "status": "Succeeded",
+        "total_ms": 1320.0,
+        "dax_query_ms": 298.0,
+        "direct_query_ms": 0.0,
+        "visual_display_ms": 120.0,
+        "evaluated_parameters_ms": 0.0,
+        "other_ms": 902.0,
+        "queries": [
+          "EVALUATE SUMMARIZECOLUMNS('Date'[Year], \"Revenue_LY\", [Revenue LY])"
+        ],
+        "row_counts": [
+          3
+        ],
+        "start": "2026-10-01T12:00:01.000Z"
+      },
+      {
+        "visual_id": "v_card_revenue",
+        "visual_title": "Total Revenue",
+        "visual_type": "card",
+        "status": "Succeeded",
+        "total_ms": 120.0,
+        "dax_query_ms": 78.0,
+        "direct_query_ms": 0.0,
+        "visual_display_ms": 30.0,
+        "evaluated_parameters_ms": 0.0,
+        "other_ms": 12.0,
+        "queries": [
+          "EVALUATE ROW(\"Total_Revenue\", [Total Revenue])"
+        ],
+        "row_counts": [
+          1
+        ],
+        "start": "2026-10-01T12:00:01.000Z"
+      },
+      {
+        "visual_id": "unknown_visual_9",
+        "visual_title": "Legacy KPI",
+        "visual_type": "kpi",
+        "status": "Succeeded",
+        "total_ms": 75.0,
+        "dax_query_ms": 48.0,
+        "direct_query_ms": 0.0,
+        "visual_display_ms": 20.0,
+        "evaluated_parameters_ms": 0.0,
+        "other_ms": 7.0,
+        "queries": [
+          "EVALUATE ROW(\"x\", 1)"
+        ],
+        "row_counts": [
+          1
+        ],
+        "start": "2026-10-01T12:00:01.000Z"
+      }
+    ],
+    "warnings": []
+  },
+  "performance_source": "performance.json",
+  "limitations": [
+    "Durations come only from the provided log; 'Other' is derived and includes queueing."
+  ]
+}

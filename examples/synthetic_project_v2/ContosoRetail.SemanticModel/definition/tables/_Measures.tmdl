@@ -1,0 +1,43 @@
+table _Measures
+
+	measure 'Revenue LY' = CALCULATE([Total Revenue], SAMEPERIODLASTYEAR('Date'[Date]))
+
+	measure 'Revenue All Customers' = CALCULATE([Total Revenue], REMOVEFILTERS(Customer))
+
+	measure 'Revenue % of All Customers' = DIVIDE([Total Revenue], [Revenue All Customers])
+		formatString: 0.0%
+
+	/// Receita de pedidos grandes
+	measure 'High Value Revenue' =
+			// Considera apenas linhas com valor alto [comentário não é referência]
+			CALCULATE(
+				[Total Revenue],
+				FILTER(Sales, Sales[Amount] * Sales[Quantity] > 1000)
+			)
+
+	measure 'Avg Customer Spend' = AVERAGEX(Customer, SUMX(RELATEDTABLE(Sales), Sales[Quantity] * Sales[Unit Price]))
+
+	measure 'Margin %' = ([Total Revenue] - [Total Cost]) / [Total Revenue]
+
+	measure 'Revenue by Ship Date' = CALCULATE([Total Revenue], USERELATIONSHIP(Sales[ShipDate], 'Date'[Date]))
+
+	measure 'Broken UseRel' = CALCULATE([Total Revenue], USERELATIONSHIP(Sales[ProductKey], Customer[CustomerKey]))
+
+	measure 'Active Customers' = DISTINCTCOUNT(Sales[CustomerKey])
+
+	measure 'Segment Revenue' =
+			VAR seg = SELECTEDVALUE(Customer[Segment])
+			RETURN
+				IF(HASONEVALUE(Customer[Segment]), CALCULATE([Total Revenue], Customer[Segment] = seg))
+
+	measure 'Revenue (R$) – Net' = [Total Revenue] - SUMX(Sales, Sales[Discount]) & "" /* "[Fake]" */
+
+	measure 'Customer''s Rank' = RANKX(ALL(Customer), [Total Revenue])
+
+	measure 'Revenue Safe' = IFERROR([Total Revenue] / [Total Quantity], 0)
+
+	measure 'Formatted Label' = ```
+				VAR label = "Revenue: [not a ref]"
+				RETURN
+					label & FORMAT([Total Revenue], "#,0")
+				```

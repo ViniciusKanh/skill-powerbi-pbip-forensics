@@ -1,0 +1,29 @@
+relationship 6c0d2f01-0000-4000-8000-000000000001
+	fromColumn: Sales.CustomerKey
+	toColumn: Customer.CustomerKey
+
+relationship 6c0d2f01-0000-4000-8000-000000000002
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.ProductKey
+	toColumn: Product.ProductKey
+
+relationship 6c0d2f01-0000-4000-8000-000000000003
+	fromColumn: Sales.OrderDate
+	toColumn: Date.Date
+
+relationship 6c0d2f01-0000-4000-8000-000000000004
+	isActive: false
+	fromColumn: Sales.ShipDate
+	toColumn: Date.Date
+
+relationship 6c0d2f01-0000-4000-8000-000000000005
+	fromColumn: 'Sales Target'.ProductKey
+	toColumn: Product.ProductKey
+
+relationship 6c0d2f01-0000-4000-8000-000000000006
+	fromColumn: 'Sales Target'.TargetDate
+	toColumn: Date.Date
+
+relationship 6c0d2f01-0000-4000-8000-000000000007
+	fromColumn: Account.CustomerKey
+	toColumn: Customer.CustomerKey

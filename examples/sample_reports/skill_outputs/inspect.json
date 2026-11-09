@@ -1,0 +1,814 @@
+{
+  "tool": "powerbi-pbip-forensics",
+  "version": "1.0.0",
+  "script": "inspect",
+  "project": "synthetic_project",
+  "generated_at": "2026-11-09T02:39:50+00:00",
+  "inventory": {
+    "counts": {
+      "pbip_files": 1,
+      "reports": 1,
+      "pages": 2,
+      "visuals": 14,
+      "semantic_models": 1,
+      "tables": 8,
+      "columns": 28,
+      "measures": 21,
+      "relationships": 7
+    },
+    "pbip_files": [
+      "ContosoRetail.pbip"
+    ],
+    "models": [
+      {
+        "name": "ContosoRetail",
+        "path": "ContosoRetail.SemanticModel",
+        "format": "tmdl",
+        "support": "full",
+        "pbism_version": "4.2",
+        "tables": [
+          {
+            "name": "Account",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Account.tmdl",
+            "line": 1,
+            "role": "fact",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [
+              "AccountKey",
+              "CustomerKey",
+              "Account Name",
+              "Balance"
+            ],
+            "calculated_columns": [],
+            "measures": [
+              "Total Balance"
+            ],
+            "hierarchies": [],
+            "partition_kinds": [
+              "m"
+            ],
+            "data_sources": [
+              "Salesforce.Data"
+            ]
+          },
+          {
+            "name": "Currency",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Currency.tmdl",
+            "line": 1,
+            "role": "disconnected",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [
+              "Code",
+              "Rate"
+            ],
+            "calculated_columns": [],
+            "measures": [],
+            "hierarchies": [],
+            "partition_kinds": [],
+            "data_sources": []
+          },
+          {
+            "name": "Customer",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Customer.tmdl",
+            "line": 1,
+            "role": "dimension",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [
+              "CustomerKey",
+              "Customer Name",
+              "Segment"
+            ],
+            "calculated_columns": [],
+            "measures": [],
+            "hierarchies": [],
+            "partition_kinds": [
+              "m"
+            ],
+            "data_sources": [
+              "Excel.Workbook",
+              "File.Contents"
+            ]
+          },
+          {
+            "name": "Date",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Date.tmdl",
+            "line": 1,
+            "role": "dimension",
+            "is_hidden": false,
+            "is_calculated": true,
+            "is_calculation_group": false,
+            "columns": [
+              "Date",
+              "Year",
+              "Month"
+            ],
+            "calculated_columns": [
+              "Year",
+              "Month"
+            ],
+            "measures": [],
+            "hierarchies": [],
+            "partition_kinds": [
+              "calculated"
+            ],
+            "data_sources": []
+          },
+          {
+            "name": "Product",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Product.tmdl",
+            "line": 1,
+            "role": "dimension",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [
+              "ProductKey",
+              "Product Name",
+              "Category"
+            ],
+            "calculated_columns": [],
+            "measures": [],
+            "hierarchies": [
+              "Product Hierarchy"
+            ],
+            "partition_kinds": [],
+            "data_sources": []
+          },
+          {
+            "name": "Sales Target",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Sales Target.tmdl",
+            "line": 1,
+            "role": "fact",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [
+              "ProductKey",
+              "TargetDate",
+              "Target"
+            ],
+            "calculated_columns": [],
+            "measures": [
+              "Target Amount"
+            ],
+            "hierarchies": [],
+            "partition_kinds": [],
+            "data_sources": []
+          },
+          {
+            "name": "Sales",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
+            "line": 1,
+            "role": "fact",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [
+              "SalesKey",
+              "CustomerKey",
+              "ProductKey",
+              "OrderDate",
+              "ShipDate",
+              "Amount",
+              "Quantity",
+              "Unit Price",
+              "Discount",
+              "Line Total"
+            ],
+            "calculated_columns": [
+              "Line Total"
+            ],
+            "measures": [
+              "Total Revenue",
+              "Total Quantity",
+              "Sales Per Row"
+            ],
+            "hierarchies": [],
+            "partition_kinds": [
+              "m"
+            ],
+            "data_sources": [
+              "Sql.Database"
+            ]
+          },
+          {
+            "name": "_Measures",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 1,
+            "role": "disconnected",
+            "is_hidden": false,
+            "is_calculated": false,
+            "is_calculation_group": false,
+            "columns": [],
+            "calculated_columns": [],
+            "measures": [
+              "Revenue LY",
+              "Revenue All Customers",
+              "Revenue % of All Customers",
+              "High Value Revenue",
+              "Avg Customer Spend",
+              "Margin %",
+              "Revenue by Ship Date",
+              "Broken UseRel",
+              "Bonus",
+              "Active Customers",
+              "Segment Revenue",
+              "Revenue (R$) – Net",
+              "Customer's Rank",
+              "Revenue Safe",
+              "Unused Helper",
+              "Formatted Label"
+            ],
+            "hierarchies": [],
+            "partition_kinds": [],
+            "data_sources": []
+          }
+        ],
+        "measures": [
+          {
+            "table": "Account",
+            "name": "Total Balance",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Account.tmdl",
+            "line": 3,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [
+              "'Account'[Balance]"
+            ],
+            "depth": 1
+          },
+          {
+            "table": "Sales Target",
+            "name": "Target Amount",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Sales Target.tmdl",
+            "line": 3,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [
+              "'Sales Target'[Target]"
+            ],
+            "depth": 1
+          },
+          {
+            "table": "Sales",
+            "name": "Total Revenue",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
+            "line": 5,
+            "display_folder": "Core",
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [
+              "'Sales'[Amount]"
+            ],
+            "depth": 1
+          },
+          {
+            "table": "Sales",
+            "name": "Total Quantity",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
+            "line": 9,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [
+              "'Sales'[Quantity]"
+            ],
+            "depth": 1
+          },
+          {
+            "table": "Sales",
+            "name": "Sales Per Row",
+            "path": "ContosoRetail.SemanticModel/definition/tables/Sales.tmdl",
+            "line": 12,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Revenue LY",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 3,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [
+              "'Date'[Date]"
+            ],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Revenue All Customers",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 5,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Revenue % of All Customers",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 7,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Revenue All Customers",
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 3
+          },
+          {
+            "table": "_Measures",
+            "name": "High Value Revenue",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 11,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [
+              "'Sales'[Amount]",
+              "'Sales'[Quantity]"
+            ],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Avg Customer Spend",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 18,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [
+              "'Sales'[Quantity]",
+              "'Sales'[Unit Price]"
+            ],
+            "depth": 1
+          },
+          {
+            "table": "_Measures",
+            "name": "Margin %",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 20,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Revenue by Ship Date",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 22,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [
+              "'Sales'[ShipDate]",
+              "'Date'[Date]"
+            ],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Broken UseRel",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 24,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [
+              "'Sales'[ProductKey]",
+              "'Customer'[CustomerKey]"
+            ],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Bonus",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 26,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Active Customers",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 28,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [
+              "'Sales'[CustomerKey]"
+            ],
+            "depth": 1
+          },
+          {
+            "table": "_Measures",
+            "name": "Segment Revenue",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 30,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [
+              "'Customer'[Segment]",
+              "'Customer'[Segment]",
+              "'Customer'[Segment]"
+            ],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Revenue (R$) – Net",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 35,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [
+              "'Sales'[Discount]"
+            ],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Customer's Rank",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 37,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Revenue Safe",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 39,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Quantity",
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          },
+          {
+            "table": "_Measures",
+            "name": "Unused Helper",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 41,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [],
+            "column_references": [],
+            "depth": 1
+          },
+          {
+            "table": "_Measures",
+            "name": "Formatted Label",
+            "path": "ContosoRetail.SemanticModel/definition/tables/_Measures.tmdl",
+            "line": 43,
+            "display_folder": null,
+            "is_hidden": false,
+            "measure_dependencies": [
+              "Total Revenue"
+            ],
+            "column_references": [],
+            "depth": 2
+          }
+        ],
+        "relationships": [
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000001",
+            "from": "'Sales'[CustomerKey]",
+            "to": "'Customer'[CustomerKey]",
+            "is_active": true,
+            "cross_filter": "oneDirection",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 1
+          },
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000002",
+            "from": "'Sales'[ProductKey]",
+            "to": "'Product'[ProductKey]",
+            "is_active": true,
+            "cross_filter": "bothDirections",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 5
+          },
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000003",
+            "from": "'Sales'[OrderDate]",
+            "to": "'Date'[Date]",
+            "is_active": true,
+            "cross_filter": "oneDirection",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 10
+          },
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000004",
+            "from": "'Sales'[ShipDate]",
+            "to": "'Date'[Date]",
+            "is_active": false,
+            "cross_filter": "oneDirection",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 14
+          },
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000005",
+            "from": "'Sales Target'[ProductKey]",
+            "to": "'Product'[ProductKey]",
+            "is_active": true,
+            "cross_filter": "oneDirection",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 19
+          },
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000006",
+            "from": "'Sales Target'[TargetDate]",
+            "to": "'Date'[Date]",
+            "is_active": true,
+            "cross_filter": "oneDirection",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 23
+          },
+          {
+            "id": "6c0d2f01-0000-4000-8000-000000000007",
+            "from": "'Account'[CustomerKey]",
+            "to": "'Customer'[CustomerKey]",
+            "is_active": false,
+            "cross_filter": "oneDirection",
+            "cardinality": "many:one",
+            "path": "ContosoRetail.SemanticModel/definition/relationships.tmdl",
+            "line": 27
+          }
+        ],
+        "roles": [],
+        "shared_expressions": [
+          "ServerName"
+        ],
+        "components": [
+          [
+            "_Measures"
+          ],
+          [
+            "Account",
+            "Customer",
+            "Date",
+            "Product",
+            "Sales",
+            "Sales Target"
+          ],
+          [
+            "Currency"
+          ]
+        ]
+      }
+    ],
+    "reports": [
+      {
+        "name": "ContosoRetail",
+        "path": "ContosoRetail.Report",
+        "format": "pbir",
+        "support": "full",
+        "pbir_version": "4.0",
+        "dataset_reference": "../ContosoRetail.SemanticModel",
+        "model_path": "ContosoRetail.SemanticModel",
+        "report_filters": [],
+        "extension_measures": [],
+        "pages": [
+          {
+            "name": "overview01",
+            "display_name": "Overview",
+            "path": "ContosoRetail.Report/definition/pages/overview01",
+            "page_filters": [
+              "Customer[Segment]"
+            ],
+            "visuals": [
+              {
+                "name": "v_card_revenue",
+                "title": "Total Revenue",
+                "type": "card",
+                "path": "ContosoRetail.Report/definition/pages/overview01/visuals/v_card_revenue/visual.json",
+                "is_custom": false,
+                "field_count": 1,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_col_category",
+                "title": "Revenue by Category",
+                "type": "clusteredColumnChart",
+                "path": "ContosoRetail.Report/definition/pages/overview01/visuals/v_col_category/visual.json",
+                "is_custom": false,
+                "field_count": 2,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_slicer_customer",
+                "title": "Customer",
+                "type": "slicer",
+                "path": "ContosoRetail.Report/definition/pages/overview01/visuals/v_slicer_customer/visual.json",
+                "is_custom": false,
+                "field_count": 1,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_table_accounts",
+                "title": "Customer Accounts",
+                "type": "tableEx",
+                "path": "ContosoRetail.Report/definition/pages/overview01/visuals/v_table_accounts/visual.json",
+                "is_custom": false,
+                "field_count": 3,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_table_bonus",
+                "title": "Bonus by Customer",
+                "type": "tableEx",
+                "path": "ContosoRetail.Report/definition/pages/overview01/visuals/v_table_bonus/visual.json",
+                "is_custom": false,
+                "field_count": 2,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_text",
+                "title": null,
+                "type": "textbox",
+                "path": "ContosoRetail.Report/definition/pages/overview01/visuals/v_text/visual.json",
+                "is_custom": false,
+                "field_count": 0,
+                "visual_filters": 0,
+                "limitations": []
+              }
+            ]
+          },
+          {
+            "name": "details01",
+            "display_name": "Details",
+            "path": "ContosoRetail.Report/definition/pages/details01",
+            "page_filters": [],
+            "visuals": [
+              {
+                "name": "v_avg_spend",
+                "title": "Avg Spend",
+                "type": "card",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_avg_spend/visual.json",
+                "is_custom": false,
+                "field_count": 2,
+                "visual_filters": 1,
+                "limitations": []
+              },
+              {
+                "name": "v_broken_column",
+                "title": "By Colour",
+                "type": "barChart",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_broken_column/visual.json",
+                "is_custom": false,
+                "field_count": 2,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_broken_measure",
+                "title": "Old Revenue",
+                "type": "card",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_broken_measure/visual.json",
+                "is_custom": false,
+                "field_count": 1,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_currency_slicer",
+                "title": "Currency",
+                "type": "slicer",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_currency_slicer/visual.json",
+                "is_custom": false,
+                "field_count": 1,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_custom",
+                "title": "Flows (custom)",
+                "type": "chordChart1A2B3C4D5E6F",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_custom/visual.json",
+                "is_custom": true,
+                "field_count": 0,
+                "visual_filters": 0,
+                "limitations": [
+                  "Custom or unrecognized visual 'chordChart1A2B3C4D5E6F': data bindings not interpretable"
+                ]
+              },
+              {
+                "name": "v_matrix_ly",
+                "title": "Revenue LY vs Ship Date",
+                "type": "pivotTable",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_matrix_ly/visual.json",
+                "is_custom": false,
+                "field_count": 3,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_pct",
+                "title": "Segment analysis",
+                "type": "tableEx",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_pct/visual.json",
+                "is_custom": false,
+                "field_count": 6,
+                "visual_filters": 0,
+                "limitations": []
+              },
+              {
+                "name": "v_target",
+                "title": "Target",
+                "type": "clusteredColumnChart",
+                "path": "ContosoRetail.Report/definition/pages/details01/visuals/v_target/visual.json",
+                "is_custom": false,
+                "field_count": 2,
+                "visual_filters": 0,
+                "limitations": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "skipped_items": []
+  },
+  "parse_issues": [],
+  "findings": [],
+  "severity_breakdown": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "INFO": 0
+  },
+  "status_breakdown": {
+    "confirmed": 0,
+    "potential": 0,
+    "inconclusive": 0
+  },
+  "limitations": [
+    "Inventory only; run the audit scripts for diagnostics."
+  ]
+}

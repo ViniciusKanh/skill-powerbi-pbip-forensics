@@ -1,0 +1,16 @@
+{
+  "events": [
+    {
+      "name": "Visual Container Lifecycle",
+      "component": "Report Canvas",
+      "start": "2026-10-01T10:00:00.000Z",
+      "end": "",
+      "id": "a",
+      "metrics": {
+        "visualTitle": "No end",
+        "visualId": "x"
+      }
+    },
+    "not-an-object"
+  ]
+}

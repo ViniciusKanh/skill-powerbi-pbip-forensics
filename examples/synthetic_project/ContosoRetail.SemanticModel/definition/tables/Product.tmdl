@@ -1,0 +1,21 @@
+table Product
+
+	column ProductKey
+		dataType: int64
+		sourceColumn: ProductKey
+
+	column 'Product Name'
+		dataType: string
+		sourceColumn: ProductName
+
+	column Category
+		dataType: string
+		sourceColumn: Category
+
+	hierarchy 'Product Hierarchy'
+
+		level Category
+			column: Category
+
+		level 'Product Name'
+			column: 'Product Name'

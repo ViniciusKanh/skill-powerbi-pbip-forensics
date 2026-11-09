@@ -1,0 +1,19 @@
+relationship r1
+	fromColumn: Sales.CustomerKey
+	toColumn: Customer.CustomerKey
+
+relationship r2
+	fromColumn: Sales.ProductKey
+	toColumn: Product.ProductKey
+
+relationship r3
+	fromColumn: Budget.ProductKey
+	toColumn: Product.ProductKey
+
+relationship r4
+	fromColumn: Sales.DateKey
+	toColumn: Date.DateKey
+
+relationship r5
+	fromColumn: Budget.DateKey
+	toColumn: Date.DateKey

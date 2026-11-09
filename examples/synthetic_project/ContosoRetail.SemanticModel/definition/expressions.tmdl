@@ -1,0 +1,2 @@
+expression ServerName = "synthetic-sql.example.invalid" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 6c0d2f01-0000-4000-8000-0000000000aa

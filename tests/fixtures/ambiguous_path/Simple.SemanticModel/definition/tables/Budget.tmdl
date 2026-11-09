@@ -1,0 +1,7 @@
+table Budget
+
+	column ProductKey
+		dataType: int64
+
+	column DateKey
+		dataType: int64

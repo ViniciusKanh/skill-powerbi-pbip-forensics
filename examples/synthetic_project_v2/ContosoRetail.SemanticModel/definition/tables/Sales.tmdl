@@ -1,0 +1,62 @@
+table Sales
+	lineageTag: 0b1f7a3e-0000-4000-8000-000000000001
+
+	/// Soma do valor de vendas (sintético)
+	measure 'Total Revenue' = SUM(Sales[Amount]) - SUM(Sales[Discount])
+		formatString: #,0.00
+		displayFolder: Core
+
+	measure 'Total Quantity' =  SUM( 'Sales'[Quantity] ) // formatting only
+		formatString: #,0
+
+	measure 'Sales Per Row' = SUMX(Sales, [Total Revenue])
+
+	column SalesKey
+		dataType: int64
+		isHidden
+		sourceColumn: SalesKey
+		summarizeBy: none
+
+	column CustomerKey
+		dataType: int64
+		sourceColumn: CustomerKey
+
+	column ProductKey
+		dataType: int64
+		sourceColumn: ProductKey
+
+	column OrderDate
+		dataType: dateTime
+		sourceColumn: OrderDate
+
+	column ShipDate
+		dataType: dateTime
+		sourceColumn: ShipDate
+
+	column Amount
+		dataType: decimal
+		sourceColumn: Amount
+
+	column Quantity
+		dataType: int64
+		sourceColumn: Quantity
+
+	column 'Unit Price'
+		dataType: decimal
+		sourceColumn: UnitPrice
+
+	column Discount
+		dataType: decimal
+		sourceColumn: Discount
+
+	column 'Line Total' = Sales[Quantity] * Sales[Unit Price]
+		dataType: decimal
+
+	partition Sales = m
+		mode: import
+		source =
+				let
+					Source = Sql.Database(ServerName, "SyntheticDW"),
+					FactSales = Source{[Schema="dbo",Item="FactSales"]}[Data]
+				in
+					FactSales

@@ -1,0 +1,15 @@
+table 'Sales Target'
+
+	measure 'Target Amount' = SUM('Sales Target'[Target])
+
+	column ProductKey
+		dataType: string
+		sourceColumn: ProductKey
+
+	column TargetDate
+		dataType: dateTime
+		sourceColumn: TargetDate
+
+	column Target
+		dataType: decimal
+		sourceColumn: Target

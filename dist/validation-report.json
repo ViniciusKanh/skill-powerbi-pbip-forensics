@@ -1,0 +1,81 @@
+{
+  "zip": "dist/powerbi-pbip-forensics-v1.0.0.zip",
+  "files": [
+    "references/diagnostic-rules.md",
+    "references/limitations.md",
+    "references/output-schema.md",
+    "references/question-playbook.md",
+    "references/supported-formats.md",
+    "scripts/pbip_diff.py",
+    "scripts/pbip_inspect.py",
+    "scripts/pbip_model_audit.py",
+    "scripts/pbip_perf_log.py",
+    "scripts/pbip_report.py",
+    "scripts/pbip_visual_deps.py",
+    "SKILL.md",
+    "templates/audit-summary.md",
+    "templates/investigation-response.md"
+  ],
+  "checks": {
+    "skill_md_count": 1,
+    "frontmatter": {
+      "name": "Power BI PBIP Forensics",
+      "description": "Diagnose Power BI projects by inspecting PBIP, PBIR, TMDL, DAX dependencies, relationships, visual bindings and performance logs. Generate evidence-based audits, root-cause hypotheses and actionable fixes.",
+      "version": "1.0.0"
+    },
+    "frontmatter_ok": true,
+    "file_count": 14,
+    "other_text_files": 13,
+    "total_characters": 501515,
+    "problems": [],
+    "zip_bytes": 143691,
+    "sha256": "54f91b20aecff8ebe873e402290471510a775faa174ead12f4858c099ec17a4d",
+    "limits_ok": true
+  },
+  "script_bytes": {
+    "pbip_diff.py": 90121,
+    "pbip_inspect.py": 85824,
+    "pbip_model_audit.py": 109933,
+    "pbip_perf_log.py": 24188,
+    "pbip_report.py": 34782,
+    "pbip_visual_deps.py": 118793
+  },
+  "script_runs": [
+    {
+      "script": "pbip_inspect.py",
+      "exit_code": 0,
+      "seconds": 0.154,
+      "stderr": "wrote inspect.json (findings: CRITICAL=0, HIGH=0, MEDIUM=0, LOW=0, INFO=0)"
+    },
+    {
+      "script": "pbip_model_audit.py",
+      "exit_code": 0,
+      "seconds": 0.155,
+      "stderr": "wrote model_audit.json (findings: CRITICAL=0, HIGH=3, MEDIUM=5, LOW=7, INFO=3)"
+    },
+    {
+      "script": "pbip_visual_deps.py",
+      "exit_code": 0,
+      "seconds": 0.174,
+      "stderr": "wrote visual_deps.json (findings: CRITICAL=0, HIGH=3, MEDIUM=0, LOW=0, INFO=4)"
+    },
+    {
+      "script": "pbip_perf_log.py",
+      "exit_code": 0,
+      "seconds": 0.115,
+      "stderr": "wrote perf_log.json (findings: CRITICAL=0, HIGH=1, MEDIUM=2, LOW=0, INFO=0)"
+    },
+    {
+      "script": "pbip_diff.py",
+      "exit_code": 0,
+      "seconds": 0.173,
+      "stderr": "wrote diff.json"
+    },
+    {
+      "script": "pbip_report.py",
+      "exit_code": 0,
+      "report_sections_ok": true
+    }
+  ],
+  "python": "3.13.13"
+}

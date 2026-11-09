@@ -1,0 +1,4 @@
+relationship r1
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.CustomerKey
+	toColumn: Customer.CustomerKey

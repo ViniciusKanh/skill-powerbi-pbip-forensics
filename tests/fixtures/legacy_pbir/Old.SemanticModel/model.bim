@@ -1,0 +1,62 @@
+{
+  "name": "Old",
+  "compatibilityLevel": 1550,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Amount",
+            "dataType": "decimal"
+          },
+          {
+            "name": "CustomerKey",
+            "dataType": "int64"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Revenue",
+            "expression": [
+              "SUM(",
+              "Sales[Amount])"
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "p",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "  S = Sql.Database(\"srv.example.invalid\", \"db\")",
+                "in",
+                "  S"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Customer",
+        "columns": [
+          {
+            "name": "CustomerKey",
+            "dataType": "string"
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "r",
+        "fromTable": "Sales",
+        "fromColumn": "CustomerKey",
+        "toTable": "Customer",
+        "toColumn": "CustomerKey"
+      }
+    ]
+  }
+}

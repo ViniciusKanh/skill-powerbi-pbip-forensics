@@ -1,0 +1,11 @@
+table 'Vendas Líquidas'
+
+	measure 'Receita (R$) – Total' = SUM('Vendas Líquidas'[Valor Bruto €])
+
+	measure 'Cliente''s Média' = DIVIDE([Receita (R$) – Total], DISTINCTCOUNT('Vendas Líquidas'[Código Cliente]))
+
+	column 'Código Cliente'
+		dataType: int64
+
+	column 'Valor Bruto €'
+		dataType: decimal

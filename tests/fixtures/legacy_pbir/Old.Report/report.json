@@ -1,0 +1,13 @@
+{
+  "sections": [
+    {
+      "name": "ReportSection",
+      "displayName": "Legacy page",
+      "visualContainers": [
+        {
+          "config": "{\"name\": \"lv1\", \"singleVisual\": {\"visualType\": \"card\", \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"s\", \"Entity\": \"Sales\", \"Type\": 0}], \"Select\": [{\"Measure\": {\"Expression\": {\"SourceRef\": {\"Source\": \"s\"}}, \"Property\": \"Total Revenue\"}, \"Name\": \"Sales.Total Revenue\"}]}}}"
+        }
+      ]
+    }
+  ]
+}

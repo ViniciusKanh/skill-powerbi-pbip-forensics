@@ -1,0 +1,17 @@
+table Customer
+
+	column CustomerKey
+		dataType: int64
+		sourceColumn: CustomerKey
+
+	column 'Customer Name'
+		dataType: string
+		sourceColumn: CustomerName
+
+	column Segment
+		dataType: string
+		sourceColumn: Segment
+
+	partition Customer = m
+		mode: import
+		source = Excel.Workbook(File.Contents("C:\\Synthetic\\customers.xlsx"), null, true){[Item="Customer"]}[Data]

@@ -284,4 +284,5 @@ Designed and developed by **Vinicius de Souza Santos** ([ViniciusKanh](https://g
 Power BI, PBIP, PBIR, TMDL and DAX are Microsoft technologies. This product is not affiliated with or endorsed
 by Microsoft.
 #   p o w e r b i - p b i p - f o r e n s i c s  
+ #   p o w e r b i - p b i p - f o r e n s i c s  
  

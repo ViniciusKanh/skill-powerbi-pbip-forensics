@@ -1,0 +1,119 @@
+{
+  "type": "change-impact",
+  "summary": {
+    "added": 1,
+    "removed": 3,
+    "modified": 2,
+    "modified-formatting": 1
+  },
+  "changes": [
+    {
+      "object_type": "measure",
+      "object": "Bonus",
+      "change": "removed",
+      "details": []
+    },
+    {
+      "object_type": "measure",
+      "object": "Unused Helper",
+      "change": "removed",
+      "details": []
+    },
+    {
+      "object_type": "column",
+      "object": "'Product'[Colour]",
+      "change": "added",
+      "details": []
+    },
+    {
+      "object_type": "measure",
+      "object": "Total Quantity",
+      "change": "modified-formatting",
+      "details": [
+        "Whitespace/comment-only change; tokens identical"
+      ]
+    },
+    {
+      "object_type": "measure",
+      "object": "Total Revenue",
+      "change": "modified",
+      "details": [
+        "DAX expression changed (token-level)"
+      ]
+    },
+    {
+      "object_type": "relationship",
+      "object": "'Account'[CustomerKey] -> 'Customer'[CustomerKey]",
+      "change": "modified",
+      "details": [
+        "isActive: False -> True"
+      ]
+    },
+    {
+      "object_type": "visual",
+      "object": "ContosoRetail/details01/v_target",
+      "change": "removed",
+      "details": []
+    }
+  ],
+  "impacts": [
+    {
+      "change": "measure Bonus (removed)",
+      "message": "Measure 'Bonus' was removed. It is still referenced by visuals in the current version: these bindings are broken (confirmed).",
+      "dependent_measures": [],
+      "affected_visuals": [
+        "ContosoRetail / Overview / Bonus by Customer (tableEx)"
+      ]
+    },
+    {
+      "change": "measure Unused Helper (removed)",
+      "message": "Measure 'Unused Helper' was removed. No visual in the current version references it.",
+      "dependent_measures": [],
+      "affected_visuals": []
+    },
+    {
+      "change": "measure Total Revenue (modified)",
+      "message": "Measure 'Total Revenue' modified. Visuals referencing it (directly or via dependent measures) may require regression testing.",
+      "dependent_measures": [
+        "Broken UseRel",
+        "Customer's Rank",
+        "Formatted Label",
+        "High Value Revenue",
+        "Margin %",
+        "Revenue % of All Customers",
+        "Revenue (R$) – Net",
+        "Revenue All Customers",
+        "Revenue by Ship Date",
+        "Revenue LY",
+        "Revenue Safe",
+        "Sales Per Row",
+        "Segment Revenue"
+      ],
+      "affected_visuals": [
+        "ContosoRetail / Details / By Colour (barChart)",
+        "ContosoRetail / Details / Revenue LY vs Ship Date (pivotTable)",
+        "ContosoRetail / Details / Segment analysis (tableEx)",
+        "ContosoRetail / Overview / Revenue by Category (clusteredColumnChart)",
+        "ContosoRetail / Overview / Total Revenue (card)"
+      ]
+    },
+    {
+      "change": "relationship 'Account'[CustomerKey] -> 'Customer'[CustomerKey] (modified)",
+      "message": "Relationship change alters filter propagation between account, customer. Measures aggregating these tables and visuals using them may require regression testing.",
+      "dependent_measures": [
+        "Avg Customer Spend",
+        "Segment Revenue",
+        "Total Balance"
+      ],
+      "affected_visuals": [
+        "ContosoRetail / Details / Avg Spend (card)",
+        "ContosoRetail / Details / Segment analysis (tableEx)",
+        "ContosoRetail / Overview / Bonus by Customer (tableEx)",
+        "ContosoRetail / Overview / Customer (slicer)",
+        "ContosoRetail / Overview / Customer Accounts (tableEx)"
+      ]
+    }
+  ],
+  "note": "Textual/structural changes indicate where to test; they are not proof of a functional regression.",
+  "project": "synthetic_project -> synthetic_project_v2"
+}

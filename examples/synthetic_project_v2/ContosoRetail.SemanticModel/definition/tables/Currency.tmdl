@@ -1,0 +1,9 @@
+table Currency
+
+	column Code
+		dataType: string
+		sourceColumn: Code
+
+	column Rate
+		dataType: decimal
+		sourceColumn: Rate

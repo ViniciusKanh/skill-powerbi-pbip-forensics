@@ -1,0 +1,4 @@
+table Date
+
+	column DateKey
+		dataType: int64

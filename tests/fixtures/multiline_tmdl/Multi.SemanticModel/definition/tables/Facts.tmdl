@@ -1,0 +1,24 @@
+table Facts
+
+	/// Descrição em várias
+	/// linhas
+	measure 'Multi Line' =
+			VAR x =
+				SUM(Facts[Value])
+
+			RETURN
+				x * 2
+		formatString: 0.00
+
+	measure 'Backticks' = ```
+			// comentário com [Ref Falsa]
+			VAR y = "texto com ""aspas"" e [colchetes]"
+			RETURN LEN(y) + [Multi Line]
+			```
+
+	measure 'Same Line' = [Multi Line] + 1
+		displayFolder: " Folder ""Q"" "
+
+	column Value
+		dataType: decimal
+		sourceColumn: Value

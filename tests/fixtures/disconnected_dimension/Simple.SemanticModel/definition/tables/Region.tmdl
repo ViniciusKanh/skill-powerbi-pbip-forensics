@@ -1,0 +1,4 @@
+table Region
+
+	column Name
+		dataType: string

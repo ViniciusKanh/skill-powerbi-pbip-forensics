@@ -1,0 +1,3 @@
+relationship 'rel com espaço'
+	fromColumn: 'Vendas Líquidas'.'Código Cliente'
+	toColumn: 'Clientes São Paulo'.'Código Cliente'

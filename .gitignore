@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+
+# Saídas locais
+reports/
+*.local.json
+
+# Power BI (nunca versionar dados locais)
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+*.pbix
+
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Pacote comercial gerado (distribuído pela Agensi, não pelo Git)
+dist/*.zip

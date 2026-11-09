@@ -1,0 +1,224 @@
+{
+  "version": "1.1.0",
+  "events": [
+    {
+      "name": "User Action",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:00.000Z",
+      "id": "ua1",
+      "metrics": {
+        "sourceLabel": "UserAction_StartedRecording"
+      }
+    },
+    {
+      "name": "Visual Container Lifecycle",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.000Z",
+      "end": "2026-10-01T12:00:04.420Z",
+      "id": "lc-v_table_accounts",
+      "metrics": {
+        "status": "Succeeded",
+        "visualTitle": "Customer Accounts",
+        "visualId": "v_table_accounts",
+        "visualType": "tableEx",
+        "initialLoad": true
+      }
+    },
+    {
+      "name": "Query",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.040Z",
+      "end": "2026-10-01T12:00:04.240Z",
+      "id": "q-v_table_accounts",
+      "parentId": "lc-v_table_accounts"
+    },
+    {
+      "name": "Execute DAX Query",
+      "component": "DAX",
+      "start": "2026-10-01T12:00:01.041Z",
+      "end": "2026-10-01T12:00:04.239Z",
+      "id": "dax-v_table_accounts",
+      "parentId": "q-v_table_accounts",
+      "metrics": {
+        "QueryText": "EVALUATE SUMMARIZECOLUMNS('Customer'[Customer Name], 'Account'[Account Name])",
+        "RowCount": 5000
+      }
+    },
+    {
+      "name": "Render",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:04.240Z",
+      "end": "2026-10-01T12:00:04.420Z",
+      "id": "r-v_table_accounts",
+      "parentId": "lc-v_table_accounts"
+    },
+    {
+      "name": "Visual Container Lifecycle",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.000Z",
+      "end": "2026-10-01T12:00:02.500Z",
+      "id": "lc-v_col_category",
+      "metrics": {
+        "status": "Succeeded",
+        "visualTitle": "Revenue by Category",
+        "visualId": "v_col_category",
+        "visualType": "clusteredColumnChart",
+        "initialLoad": true
+      }
+    },
+    {
+      "name": "Query",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.030Z",
+      "end": "2026-10-01T12:00:01.250Z",
+      "id": "q-v_col_category",
+      "parentId": "lc-v_col_category"
+    },
+    {
+      "name": "Execute DAX Query",
+      "component": "DAX",
+      "start": "2026-10-01T12:00:01.031Z",
+      "end": "2026-10-01T12:00:01.249Z",
+      "id": "dax-v_col_category",
+      "parentId": "q-v_col_category",
+      "metrics": {
+        "QueryText": "EVALUATE SUMMARIZECOLUMNS('Product'[Category], \"Total_Revenue\", [Total Revenue])",
+        "RowCount": 12
+      }
+    },
+    {
+      "name": "Render",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.250Z",
+      "end": "2026-10-01T12:00:02.500Z",
+      "id": "r-v_col_category",
+      "parentId": "lc-v_col_category"
+    },
+    {
+      "name": "Visual Container Lifecycle",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.000Z",
+      "end": "2026-10-01T12:00:01.120Z",
+      "id": "lc-v_card_revenue",
+      "metrics": {
+        "status": "Succeeded",
+        "visualTitle": "Total Revenue",
+        "visualId": "v_card_revenue",
+        "visualType": "card",
+        "initialLoad": true
+      }
+    },
+    {
+      "name": "Query",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.010Z",
+      "end": "2026-10-01T12:00:01.090Z",
+      "id": "q-v_card_revenue",
+      "parentId": "lc-v_card_revenue"
+    },
+    {
+      "name": "Execute DAX Query",
+      "component": "DAX",
+      "start": "2026-10-01T12:00:01.011Z",
+      "end": "2026-10-01T12:00:01.089Z",
+      "id": "dax-v_card_revenue",
+      "parentId": "q-v_card_revenue",
+      "metrics": {
+        "QueryText": "EVALUATE ROW(\"Total_Revenue\", [Total Revenue])",
+        "RowCount": 1
+      }
+    },
+    {
+      "name": "Render",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.090Z",
+      "end": "2026-10-01T12:00:01.120Z",
+      "id": "r-v_card_revenue",
+      "parentId": "lc-v_card_revenue"
+    },
+    {
+      "name": "Visual Container Lifecycle",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.000Z",
+      "end": "2026-10-01T12:00:02.320Z",
+      "id": "lc-v_matrix_ly",
+      "metrics": {
+        "status": "Succeeded",
+        "visualTitle": "Revenue LY vs Ship Date",
+        "visualId": "v_matrix_ly",
+        "visualType": "pivotTable",
+        "initialLoad": true
+      }
+    },
+    {
+      "name": "Query",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.900Z",
+      "end": "2026-10-01T12:00:02.200Z",
+      "id": "q-v_matrix_ly",
+      "parentId": "lc-v_matrix_ly"
+    },
+    {
+      "name": "Execute DAX Query",
+      "component": "DAX",
+      "start": "2026-10-01T12:00:01.901Z",
+      "end": "2026-10-01T12:00:02.199Z",
+      "id": "dax-v_matrix_ly",
+      "parentId": "q-v_matrix_ly",
+      "metrics": {
+        "QueryText": "EVALUATE SUMMARIZECOLUMNS('Date'[Year], \"Revenue_LY\", [Revenue LY])",
+        "RowCount": 3
+      }
+    },
+    {
+      "name": "Render",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:02.200Z",
+      "end": "2026-10-01T12:00:02.320Z",
+      "id": "r-v_matrix_ly",
+      "parentId": "lc-v_matrix_ly"
+    },
+    {
+      "name": "Visual Container Lifecycle",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.000Z",
+      "end": "2026-10-01T12:00:01.075Z",
+      "id": "lc-unknown_visual_9",
+      "metrics": {
+        "status": "Succeeded",
+        "visualTitle": "Legacy KPI",
+        "visualId": "unknown_visual_9",
+        "visualType": "kpi",
+        "initialLoad": true
+      }
+    },
+    {
+      "name": "Query",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.005Z",
+      "end": "2026-10-01T12:00:01.055Z",
+      "id": "q-unknown_visual_9",
+      "parentId": "lc-unknown_visual_9"
+    },
+    {
+      "name": "Execute DAX Query",
+      "component": "DAX",
+      "start": "2026-10-01T12:00:01.006Z",
+      "end": "2026-10-01T12:00:01.054Z",
+      "id": "dax-unknown_visual_9",
+      "parentId": "q-unknown_visual_9",
+      "metrics": {
+        "QueryText": "EVALUATE ROW(\"x\", 1)",
+        "RowCount": 1
+      }
+    },
+    {
+      "name": "Render",
+      "component": "Report Canvas",
+      "start": "2026-10-01T12:00:01.055Z",
+      "end": "2026-10-01T12:00:01.075Z",
+      "id": "r-unknown_visual_9",
+      "parentId": "lc-unknown_visual_9"
+    }
+  ]
+}

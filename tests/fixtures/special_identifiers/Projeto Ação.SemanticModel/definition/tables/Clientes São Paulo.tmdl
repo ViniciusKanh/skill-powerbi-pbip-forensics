@@ -1,0 +1,7 @@
+table 'Clientes São Paulo'
+
+	column 'Código Cliente'
+		dataType: int64
+
+	column 'Nome do Cliente'
+		dataType: string

@@ -1,0 +1,16 @@
+table Date
+
+	column Date
+		dataType: dateTime
+		isKey
+		sourceColumn: [Date]
+
+	column Year = YEAR('Date'[Date])
+		dataType: int64
+
+	column Month = FORMAT('Date'[Date], "MMM")
+		dataType: string
+
+	partition Date = calculated
+		mode: import
+		source = CALENDAR(DATE(2024, 1, 1), DATE(2026, 12, 31))

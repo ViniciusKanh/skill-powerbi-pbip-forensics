@@ -1,0 +1,4 @@
+relationship r1
+	isActive: false
+	fromColumn: Sales.CustomerKey
+	toColumn: Customer.CustomerKey

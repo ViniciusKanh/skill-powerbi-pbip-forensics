@@ -1,0 +1,11 @@
+table Sales
+
+	measure 'Total Revenue' = SUM ( Sales[Amount] ) // comentário
+
+	column CustomerKey
+		dataType: int64
+		sourceColumn: CustomerKey
+
+	column Amount
+		dataType: decimal
+		sourceColumn: Amount

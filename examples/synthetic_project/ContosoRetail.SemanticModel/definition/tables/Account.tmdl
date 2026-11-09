@@ -1,0 +1,23 @@
+table Account
+
+	measure 'Total Balance' = SUM(Account[Balance])
+
+	column AccountKey
+		dataType: int64
+		sourceColumn: AccountKey
+
+	column CustomerKey
+		dataType: int64
+		sourceColumn: CustomerKey
+
+	column 'Account Name'
+		dataType: string
+		sourceColumn: AccountName
+
+	column Balance
+		dataType: decimal
+		sourceColumn: Balance
+
+	partition Account = m
+		mode: import
+		source = Salesforce.Data("https://login.example.invalid", [ApiVersion=48])

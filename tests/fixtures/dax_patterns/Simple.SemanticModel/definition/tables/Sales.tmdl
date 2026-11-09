@@ -1,0 +1,29 @@
+table Sales
+
+	measure 'Total Revenue' = SUM(Sales[Amount])
+
+	column CustomerKey
+		dataType: int64
+		sourceColumn: CustomerKey
+
+	column Amount
+		dataType: decimal
+		sourceColumn: Amount
+
+	measure Missing = [Total Revenue] + [Does Not Exist] + Sales[Nope] + 'Ghost'[Col]
+
+	measure Costly = CALCULATE([Total Revenue], FILTER(Sales, Sales[Amount] > 10))
+
+	measure Nested = SUMX(Customer, SUMX(RELATEDTABLE(Sales), Sales[Amount]))
+
+	measure 'Ignore Customer' = CALCULATE([Total Revenue], ALL(Customer))
+
+	measure 'Good Column Filter' = CALCULATE([Total Revenue], Sales[Amount] > 10)
+
+	measure 'Local Columns' = SUMX(ADDCOLUMNS(VALUES(Customer[Name]), "Rev", [Total Revenue]), [Rev])
+
+	measure 'Series' = SUMX(GENERATESERIES(1, 10, 1), [Value])
+
+	measure Cycle1 = [Cycle2] + 1
+
+	measure Cycle2 = [Cycle1] * 2
