@@ -21,3 +21,15 @@ choosing.
 - The trademark notice: Microsoft and Power BI names are used only descriptively.
 
 Until then, keep the repository private and do not push it to a public remote.
+
+## Packaging note (2026-11, Python CLI distribution)
+
+`pyproject.toml` now declares the license as the SPDX expression `license = "LicenseRef-Proprietary"`
+(PEP 639), with `LICENSE` shipped via `license-files`. This is a **metadata-format** change only —
+the software is exactly as proprietary as before ("All rights reserved", no license granted without
+a separate agreement). The change was needed because the previous
+`license = {text = "..."}` + `"License :: Other/Proprietary License"` classifier combination is
+deprecated by setuptools and stops building after 2027-02-18. The `Private :: Do Not Upload`
+classifier is kept, so PyPI still refuses any accidental upload until it is deliberately removed.
+See [docs/python-packaging.md](python-packaging.md) for the full packaging and future-publication
+procedure (not executed).

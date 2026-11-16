@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]  # >=77 needed for the PEP 639 license/license-files fields
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,22 +8,54 @@ version = "1.0.0"
 description = "Evidence-based static forensics for Power BI PBIP/PBIR/TMDL projects and Performance Analyzer logs."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Proprietary - All rights reserved" }
+# NOTE (packaging review, 2026-11): modernized to the PEP 639 SPDX-expression form. "LicenseRef-Proprietary"
+# keeps the software fully proprietary (same rights as the previous "Proprietary - All rights reserved"
+# text) while using the metadata format setuptools >=77 requires going forward (the old
+# `license = {text = ...}` table plus a "License :: Other/Proprietary License" classifier is deprecated
+# and setuptools will stop building it after 2027-02-18). The LICENSE file is still shipped verbatim via
+# `license-files`. See docs/licensing-options.md and LICENSE for the full terms.
+license = "LicenseRef-Proprietary"
+license-files = ["LICENSE"]
 authors = [{ name = "Vinicius de Souza Santos" }]
 keywords = ["power-bi", "pbip", "pbir", "tmdl", "dax", "audit", "forensics"]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
-    "License :: Other/Proprietary License",
-    "Private :: Do Not Upload",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Office/Business",
+    "Natural Language :: English",
+    "Natural Language :: Portuguese (Brazilian)",
+    "Typing :: Typed",
+    # NOTE: no "License :: Other/Proprietary License" classifier here — it cannot be combined with the
+    # SPDX `license` expression above (setuptools raises InvalidConfigError); the SPDX expression alone
+    # is the modern, correct way to declare the proprietary license.
+    #
+    # "Private :: Do Not Upload" removed on 2026-11-16 at the author's explicit request, as the
+    # deliberate step enabling the first real PyPI publication of v1.0.0. See
+    # docs/python-packaging.md for the publish procedure and CHANGELOG.md for the release note.
 ]
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/ViniciusKanh/powerbi-pbip-forensics"
+Repository = "https://github.com/ViniciusKanh/powerbi-pbip-forensics"
+Documentation = "https://github.com/ViniciusKanh/powerbi-pbip-forensics#readme"
+Changelog = "https://github.com/ViniciusKanh/powerbi-pbip-forensics/blob/main/CHANGELOG.md"
+Issues = "https://github.com/ViniciusKanh/powerbi-pbip-forensics/issues"
+
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "mypy>=1.10"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "mypy>=1.10", "build>=1.2", "twine>=5.1",
+       "setuptools>=77", "wheel>=0.43"]
 
 [project.scripts]
 pbip-forensics = "pbip_forensics.cli:main"
@@ -31,9 +63,15 @@ pbip-forensics = "pbip_forensics.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+pbip_forensics = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+    "packaging: builds the wheel/sdist and installs them in isolated venvs (slow, offline-capable)",
+]
 
 [tool.ruff]
 line-length = 120

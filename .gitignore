@@ -27,3 +27,8 @@ reports/
 
 # Pacote comercial gerado (distribuído pela Agensi, não pelo Git)
 dist/*.zip
+
+# Artefatos de empacotamento Python (gerados localmente por `python -m build`)
+dist/*.whl
+dist/*.tar.gz
+.venv*/

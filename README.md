@@ -197,6 +197,140 @@ py $S\pbip_visual_deps.py --project $P --from-table Customer --to-table Account 
 
 Open `C:\BI\audit\audit-report.html`. Use `--lang pt-BR` for Brazilian Portuguese headings and summaries.
 
+## 📦 Install the CLI (Python package)
+
+> **Requirements:** Python **3.11, 3.12 or 3.13** on Windows, Linux or macOS. The engine uses only the
+> standard library at runtime — installing the CLI pulls in no third-party dependencies.
+
+<details>
+<summary><b>Install from a wheel (recommended — offline-friendly)</b></summary>
+
+Build artifacts are **not** published on PyPI yet (see [Future publication](#-future-publication-not-done-yet)
+below). Until then, install directly from a built wheel — built locally with `python -m build` (see
+[For developers](#-for-developers)), or one you were given by the author:
+
+```powershell
+# Windows (PowerShell)
+py -3 -m venv .venv
+.\.venv\Scripts\pip install .\dist\powerbi_pbip_forensics-1.0.0-py3-none-any.whl
+.\.venv\Scripts\pbip-forensics --version
+```
+
+```bash
+# Linux / macOS
+python3 -m venv .venv
+./.venv/bin/pip install ./dist/powerbi_pbip_forensics-1.0.0-py3-none-any.whl
+./.venv/bin/pbip-forensics --version
+```
+
+A virtual environment is not required — `pip install --user <wheel>` or `pipx install <wheel>` also work —
+but it keeps the install isolated and easy to remove (`pipx` additionally puts `pbip-forensics` on your
+`PATH` automatically).
+</details>
+
+<details>
+<summary><b>Install from a private index</b></summary>
+
+If you host the wheel on a private index or simple-repository (Artifactory, Azure Artifacts, a private
+`devpi`, a signed URL to cloud storage, etc.):
+
+```bash
+pip install powerbi-pbip-forensics --index-url https://<your-private-index>/simple/
+```
+</details>
+
+<details>
+<summary><b>Basic commands</b></summary>
+
+```bash
+pbip-forensics --version
+pbip-forensics --help
+pbip-forensics run         --project "C:\BI\MyProject" --open --lang pt-BR
+pbip-forensics scan        --project "C:\BI\MyProject"
+pbip-forensics audit       --project "C:\BI\MyProject" --output .\reports --format all --fail-on HIGH
+pbip-forensics performance --input .\reports\performance.json
+pbip-forensics diff        --before "C:\BI\MyProject" --after "C:\BI\MyProject_v2"
+pbip-forensics investigate --project "C:\BI\MyProject" --from-table Customer --to-table Account
+pbip-forensics report      --input .\reports\findings.json --format html
+python -m pbip_forensics --version   # equivalent module entry point, no PATH needed
+```
+
+`--project` is read-only and is never modified. `--output` must point **outside** the audited project (the
+tool refuses to write inside it). `--fail-on {CRITICAL,HIGH,MEDIUM,LOW,INFO}` makes `audit`/`run` return exit
+code `1` when a finding at or above that severity exists — wire this into CI to gate a pipeline on Power BI
+quality. See [Exit codes](#exit-codes) below.
+</details>
+
+<details>
+<summary><b>Update / uninstall / check version</b></summary>
+
+```bash
+pip install --force-reinstall ./dist/powerbi_pbip_forensics-<new-version>-py3-none-any.whl   # update
+pip uninstall powerbi-pbip-forensics                                                          # uninstall
+pip show powerbi-pbip-forensics                                                               # installed version
+pbip-forensics --version                                                                      # CLI version
+```
+</details>
+
+<details>
+<summary><a name="exit-codes"></a><b>Exit codes</b></summary>
+
+| Code | Meaning |
+|---|---|
+| 0 | Success (no finding reached `--fail-on`, or `--fail-on` not set) |
+| 1 | At least one finding at/above the `--fail-on` severity |
+| 2 | Invalid input (bad path, bad JSON, missing required option) |
+| 3 | A configured limit was exceeded (file count, file size) |
+| 4 | Refused by security policy (output inside the audited project, sensitive file, out-of-scope path) |
+| 5 | Invalid Performance Analyzer log |
+| 10 | Internal error (re-run with `--debug` for the traceback) |
+</details>
+
+<details>
+<summary><b>CI/CD integration</b></summary>
+
+```yaml
+# Example: GitHub Actions step that fails the pipeline on HIGH+ findings
+- name: Audit Power BI project
+  run: |
+    pip install ./dist/powerbi_pbip_forensics-1.0.0-py3-none-any.whl
+    pbip-forensics audit --project "$GITHUB_WORKSPACE/MyProject.Report/.." \
+      --output "$RUNNER_TEMP/pbip-audit" --format all --fail-on HIGH
+```
+
+The tool never reaches the network and never phones home (see [Safety and privacy](#🛡%EF%B8%8F-safety-and-privacy));
+exit codes make it CI-friendly without extra tooling. For how *this repository's own* CI is set up (lint,
+type-check, tests, build, no publishing), see
+[`.github/workflows/python-package-ci.yml`](.github/workflows/python-package-ci.yml).
+</details>
+
+<details>
+<summary><b>Privacy policy, license and limitations</b></summary>
+
+- **Privacy:** static, local, read-only analysis. DAX/M/JSON are parsed as text, never executed. No
+  telemetry, no network calls, no data leaves your machine. See
+  [🛡️ Safety and privacy](#🛡%EF%B8%8F-safety-and-privacy) below and
+  [`src/pbip_forensics/security/safety.py`](src/pbip_forensics/security/safety.py).
+- **License:** proprietary (`LicenseRef-Proprietary`); installing or receiving the package does not grant
+  any right to use, copy or redistribute it beyond what [LICENSE](LICENSE) allows. See
+  [📄 License](#-license) and [docs/licensing-options.md](docs/licensing-options.md).
+- **Limitations:** static analysis only, with documented gaps in filter-propagation, DAX coverage and
+  format support. See [docs/limitations.md](docs/limitations.md) before relying on a finding for a
+  production decision.
+
+</details>
+
+<details>
+<summary><a name="-future-publication-not-done-yet"></a><b>Publishing to PyPI</b></summary>
+
+`powerbi-pbip-forensics` is **not yet published** on PyPI. The `Private :: Do Not Upload` safety
+classifier was removed from `pyproject.toml` on 2026-11-16 at the author's explicit request, as the
+deliberate step that allows a real upload to succeed — the package itself has not been uploaded yet.
+See [docs/python-packaging.md](docs/python-packaging.md) for the full, step-by-step publish procedure
+(API-token upload and the Trusted-Publishing alternative) and [docs/licensing-options.md](docs/licensing-options.md)
+for the licensing decision behind it.
+</details>
+
 ## 💬 What you can ask
 
 | You ask the agent | It checks |
@@ -341,9 +475,9 @@ pbip-forensics report      --input ./reports/findings.json --format html
 src/pbip_forensics/     engine: security · discovery · parsers · graph · analyzers · findings · reporting · cli
 agensi/powerbi-pbip-forensics/   the skill: SKILL.md · scripts/ (generated) · references/ · templates/
 tools/                  build_skill · package_agensi · make_fixtures · run_demo · gen_docs · script_metrics
-tests/                  unit · integration (including isolated script parity) · fixtures (synthetic)
+tests/                  unit · integration (including isolated script parity) · packaging (wheel/sdist install) · fixtures
 examples/               synthetic projects · sample Performance Analyzer log · sample reports
-docs/                   architecture · formats · rules · limitations · validation · Agensi docs · assets
+docs/                   architecture · formats · rules · limitations · validation · packaging & publishing · Agensi docs · assets
 ```
 </details>
 
@@ -351,15 +485,22 @@ docs/                   architecture · formats · rules · limitations · valid
 <summary><b>Tests and packaging</b></summary>
 
 ```bash
-python -m pytest -o addopts="" -q     # 101 tests
+python -m pytest -o addopts="" -q                  # 112 tests (101 engine/skill + 11 packaging)
+python -m pytest -q -m "not packaging"              # fast subset, skips the real build+install tests
 ruff check src tests tools && mypy
-python tools/build_skill.py           # regenerate standalone scripts from the engine
-python tools/gen_docs.py              # regenerate the rule catalog docs
-python tools/package_agensi.py        # build and validate dist/powerbi-pbip-forensics-v1.0.0.zip
+python tools/build_skill.py                         # regenerate standalone scripts from the engine
+python tools/gen_docs.py                             # regenerate the rule catalog docs
+python tools/package_agensi.py                       # build and validate dist/powerbi-pbip-forensics-v1.0.0.zip
+
+python -m build                                      # build the pip wheel + sdist into dist/
+python -m twine check dist/*.whl dist/*.tar.gz       # validate package metadata
 ```
 
-Each generated script is also run alone, under `python -I`, and its output is compared with the engine's.
-See [docs/validation-results.md](docs/validation-results.md).
+Each generated skill script is also run alone, under `python -I`, and its output is compared with the
+engine's (see [docs/validation-results.md](docs/validation-results.md)). The `tests/packaging/` suite builds
+the real wheel/sdist and installs each in a fresh, isolated virtual environment to prove the CLI works with
+no `PYTHONPATH` and no repository path on `sys.path` (see
+[docs/python-packaging.md](docs/python-packaging.md) for the full packaging and future-publication notes).
 </details>
 
 ### Documentation
@@ -373,6 +514,7 @@ See [docs/validation-results.md](docs/validation-results.md).
 | [Validation results](docs/validation-results.md) | Measured tests, coverage, timing, parity |
 | [SKILL.md](agensi/powerbi-pbip-forensics/SKILL.md) | Operational instructions for agents |
 | [Publishing on Agensi](docs/PUBLISH_AGENSI.md) | Submission and post-publication test |
+| [Python packaging & publishing](docs/python-packaging.md) | Wheel/sdist build, CI, and the TestPyPI/PyPI procedure (not yet executed) |
 | [Changelog](CHANGELOG.md) | Release history |
 
 ## 📄 License
