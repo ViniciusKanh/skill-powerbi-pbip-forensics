@@ -1,0 +1,121 @@
+# CI de qualidade para a distribuição Python (powerbi-pbip-forensics / pbip-forensics).
+#
+# Escopo deliberado: só valida (lint, tipos, testes, build, metadados, instalação).
+# NÃO publica nada em nenhum índice (PyPI/TestPyPI) e NÃO roda em pull_request — só em
+# push para a branch de desenvolvimento, para manter o fluxo "sem PR, sem alteração na main".
+name: Python package CI
+
+on:
+  push:
+    branches:
+      - feat/pbip-forensics-python-cli
+
+# Permissões mínimas: leitura do código, nada além disso. Nenhum job aqui precisa
+# escrever no repositório, publicar pacotes ou usar OIDC/id-token.
+permissions:
+  contents: read
+
+concurrency:
+  group: python-package-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: Lint, type-check, test, build (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the project and its dev dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+
+      - name: Ruff (lint)
+        run: ruff check src tests tools
+
+      - name: Mypy (type-check)
+        run: mypy
+
+      - name: Pytest (unit + integration + packaging)
+        run: python -m pytest -v
+
+      - name: Build wheel and sdist
+        run: python -m build
+
+      - name: Validate distribution metadata (twine check)
+        run: python -m twine check dist/*.whl dist/*.tar.gz
+
+      - name: Inspect distributed files (no secrets, expected content only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "## Wheel contents"
+          python -m zipfile -l dist/*.whl
+          echo "## Sdist contents"
+          python -c "import tarfile, glob; tf = tarfile.open(glob.glob('dist/*.tar.gz')[0]); print('\n'.join(tf.getnames()))"
+          echo "## Scanning for forbidden patterns"
+          python - <<'PY'
+          import glob
+          import sys
+          import tarfile
+          import zipfile
+
+          forbidden = ("BEGIN RSA PRIVATE KEY", "BEGIN OPENSSH PRIVATE KEY", "BEGIN PRIVATE KEY", "client_secret=")
+          forbidden_names = {".env", "credentials.json", "localsettings.json", "cache.abf"}
+          bad = []
+
+          wheel = glob.glob("dist/*.whl")[0]
+          with zipfile.ZipFile(wheel) as zf:
+              for name in zf.namelist():
+                  if name.rsplit("/", 1)[-1].lower() in forbidden_names:
+                      bad.append(f"{wheel}:{name}")
+                  if name.endswith((".py", ".txt", ".md")):
+                      text = zf.read(name).decode("utf-8", errors="replace")
+                      if any(p in text for p in forbidden):
+                          bad.append(f"{wheel}:{name} (forbidden pattern)")
+
+          sdist = glob.glob("dist/*.tar.gz")[0]
+          with tarfile.open(sdist) as tf:
+              for name in tf.getnames():
+                  if name.rsplit("/", 1)[-1].lower() in forbidden_names:
+                      bad.append(f"{sdist}:{name}")
+
+          if bad:
+              print("Forbidden content found:", bad)
+              sys.exit(1)
+          print("No forbidden content found.")
+          PY
+
+      - name: Install the built wheel in a clean venv and smoke-test the CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/wheel-venv
+          /tmp/wheel-venv/bin/python -m pip install --no-index --no-deps dist/*.whl
+          cd /tmp
+          /tmp/wheel-venv/bin/pbip-forensics --version
+          /tmp/wheel-venv/bin/pbip-forensics --help
+          /tmp/wheel-venv/bin/python -m pbip_forensics --version
+          /tmp/wheel-venv/bin/pbip-forensics audit \
+            --project "${GITHUB_WORKSPACE}/examples/synthetic_project" \
+            --output /tmp/wheel-audit-out --format all --fail-on HIGH || test $? -eq 1
+          test -f /tmp/wheel-audit-out/findings.json
+          test -f /tmp/wheel-audit-out/audit-report.html
+          test -f /tmp/wheel-audit-out/audit-report.md
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-python${{ matrix.python-version }}
+          path: dist/*.whl
+          retention-days: 7
+          if-no-files-found: error
